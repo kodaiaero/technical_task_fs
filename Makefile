@@ -3,6 +3,10 @@
 
 QUEUE_ENDPOINT_LOCAL = http://localhost:9324/000000000000/article-status-changes
 SQS_VERSION = 2012-11-05
+GRPC_SERVICE = sliide.services.articles.api.ArticleAPI
+
+# Request body for `make api-call`; override on the command line.
+DATA ?= {}
 
 .DEFAULT_GOAL := help
 
@@ -49,6 +53,24 @@ ps:
 restart-api:
 	@docker compose restart api
 
+## Call an RPC directly, e.g. make api-call RPC=GetArticles DATA='{"count":3}'
+api-call:
+	@docker build -q -t articles-tools -f backend/Dockerfile.tools backend > /dev/null
+	@DATA='$(DATA)'; docker run --rm --network articles_default articles-tools \
+		buf curl --protocol grpc --http2-prior-knowledge \
+		"http://api:8081/$(GRPC_SERVICE)/$(RPC)" -d "$$DATA"
+
+## Regenerate Go code from the protobuf definitions
+generate:
+	@docker build -q -t articles-tools -f backend/Dockerfile.tools backend > /dev/null
+	@docker run --rm -v "$(PWD)/backend:/app" -v articles_go_mod_cache:/go/pkg/mod articles-tools buf generate
+	@echo "Generated code written to backend/pkg/articles/api"
+
+## Lint the protobuf definitions
+lint-proto:
+	@docker build -q -t articles-tools -f backend/Dockerfile.tools backend > /dev/null
+	@docker run --rm -v "$(PWD)/backend:/app" articles-tools buf lint
+
 ## Open a psql shell against the local database
 psql:
 	@docker compose exec postgres psql -U developer -d articles_db
@@ -82,4 +104,4 @@ queue-purge:
 	@curl -s -X POST "$(QUEUE_ENDPOINT_LOCAL)" -d "Action=PurgeQueue" -d "Version=$(SQS_VERSION)"
 	@echo ""
 
-.PHONY: help up down logs logs-api logs-consumer ps restart-api psql reset-db seed-large seed-reset queue-attrs queue-send queue-purge
+.PHONY: help up down api-call generate lint-proto logs logs-api logs-consumer ps restart-api psql reset-db seed-large seed-reset queue-attrs queue-send queue-purge

@@ -10,8 +10,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	"github.com/sliide/articles-core/internal/articles"
 	"github.com/sliide/articles-core/internal/database"
 	"github.com/sliide/articles-core/internal/queue"
+	api "github.com/sliide/articles-core/pkg/articles/api"
 )
 
 const (
@@ -40,6 +42,7 @@ func main() {
 	}
 
 	server := grpc.NewServer()
+	api.RegisterArticleAPIServer(server, articles.NewService(articles.NewRepository(db)))
 	reflection.Register(server)
 
 	go func() {
