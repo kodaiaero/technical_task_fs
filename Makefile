@@ -20,6 +20,7 @@ up:
 	@echo ""
 	@echo "  gRPC API      localhost:8091"
 	@echo "  Postgres      localhost:5442  (developer / devpassword / articles_db)"
+	@echo "  Image CDN     localhost:8092  - external, see external/README.md"
 	@echo "  Queue (SQS)   localhost:9324  - external, see external/README.md"
 	@echo "  Queue stats   http://localhost:9325"
 	@echo ""
@@ -52,6 +53,14 @@ restart-api:
 psql:
 	@docker compose exec postgres psql -U developer -d articles_db
 
+## Add 2000 more articles, to see how things behave with realistic volume
+seed-large:
+	@docker compose exec -T postgres psql -U developer -d articles_db -v ON_ERROR_STOP=1 < database/seed-large.sql
+
+## Remove the bulk articles added by seed-large
+seed-reset:
+	@docker compose exec -T postgres psql -U developer -d articles_db -c "DELETE FROM articles WHERE title ~ ' \\([0-9]+\\)$$';"
+
 ## Destroy the database and rebuild it from the migrations
 reset-db:
 	@docker compose down -v
@@ -73,4 +82,4 @@ queue-purge:
 	@curl -s -X POST "$(QUEUE_ENDPOINT_LOCAL)" -d "Action=PurgeQueue" -d "Version=$(SQS_VERSION)"
 	@echo ""
 
-.PHONY: help up down logs logs-api logs-consumer ps restart-api psql reset-db queue-attrs queue-send queue-purge
+.PHONY: help up down logs logs-api logs-consumer ps restart-api psql reset-db seed-large seed-reset queue-attrs queue-send queue-purge

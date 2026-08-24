@@ -35,6 +35,23 @@ make logs-consumer                    # what the consumer is doing
 
 There is also a web view of the queues at http://localhost:9325.
 
+## `cdn/`
+
+Stands in for the CDN that serves article images. In production these are
+uploaded by the ingestion pipeline and served from object storage behind a
+CDN; locally an nginx container serves the same files from disk.
+
+Base URL: http://localhost:8092
+
+The `image_path` stored against an article is relative to that base - for
+example `/articles/technology-01.svg` - so the host is configuration rather
+than data. The frontend is given the base URL through the environment, which
+is why changing the port here does not require reseeding the database.
+
+```bash
+curl -I http://localhost:8092/articles/technology-01.svg
+```
+
 ## `consumer/`
 
 Stands in for `article-ingestion-service`, which owns article state in
