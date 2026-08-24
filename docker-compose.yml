@@ -1,0 +1,73 @@
+name: articles
+
+services:
+  # ---------------------------------------------------------------------------
+  # Our stack.
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:17
+    container_name: articles_postgres
+    environment:
+      POSTGRES_DB: articles_db
+      POSTGRES_USER: developer
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "5442:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U developer -d articles_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    container_name: articles_api
+    environment:
+      QUEUE_ENDPOINT: http://elasticmq:9324
+      QUEUE_URL: http://elasticmq:9324/000000000000/article-status-changes
+    ports:
+      - "8091:8081"
+    volumes:
+      - ./backend:/app
+      - go_mod_cache:/go/pkg/mod
+      - go_build_cache:/root/.cache/go-build
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticmq:
+        condition: service_started
+
+  # ---------------------------------------------------------------------------
+  # Stands in for services we do not own. See external/README.md.
+  # Treat these as managed infrastructure: you would not deploy or patch them.
+  # ---------------------------------------------------------------------------
+  elasticmq:
+    image: softwaremill/elasticmq-native:1.6.14
+    container_name: articles_queue
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./external/elasticmq/elasticmq.conf:/opt/elasticmq.conf:ro
+
+  consumer:
+    build:
+      context: ./external/consumer
+    container_name: articles_consumer
+    environment:
+      DATABASE_URL: postgres://developer:devpassword@postgres:5432/articles_db?sslmode=disable
+      QUEUE_ENDPOINT: http://elasticmq:9324
+      QUEUE_URL: http://elasticmq:9324/000000000000/article-status-changes
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticmq:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  go_mod_cache:
+  go_build_cache:
