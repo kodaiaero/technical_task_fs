@@ -40,6 +40,27 @@ services:
       elasticmq:
         condition: service_started
 
+  frontend:
+    build:
+      context: ./frontend
+    container_name: articles_frontend
+    environment:
+      ARTICLES_CORE_URL: http://api:8081
+      SERVER_LISTEN_ADDR: 0.0.0.0:3010
+      # Resolved by the browser, so this is a host address rather than a
+      # container one.
+      VITE_IMAGE_BASE_URL: http://localhost:8092
+    ports:
+      - "5183:5183"
+      - "3010:3010"
+    volumes:
+      - ./frontend:/app
+      # Keeps the image's node_modules rather than letting the bind mount hide
+      # them. Run `make reinstall-frontend` after changing package.json.
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - api
+
   # ---------------------------------------------------------------------------
   # Stands in for services we do not own. See external/README.md.
   # Treat these as managed infrastructure: you would not deploy or patch them.
@@ -78,5 +99,6 @@ services:
 
 volumes:
   postgres_data:
+  frontend_node_modules:
   go_mod_cache:
   go_build_cache:
