@@ -39,7 +39,7 @@ and does not need it.
 
 `make install` works with just Docker, but it does a better job if you also have
 [**Node 24**](https://nodejs.org/en/download) (which supplies `pnpm` via
-corepack) and [**Go 1.25**](https://go.dev/dl/) on your machine. Without local
+corepack) and [**Go 1.26**](https://go.dev/dl/) on your machine. Without local
 Node the frontend dependencies are installed through a throwaway Docker
 container - Linux builds, fine for your editor but not for running anything
 directly. Without local Go the module download is skipped entirely, so your
