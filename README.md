@@ -109,10 +109,7 @@ That leaves you with a genuinely interesting problem:
 > **What do you show the person who just clicked the button?**
 
 There is no single right answer, and we are far more interested in your
-reasoning than in any particular implementation. But there is one rule we do
-care about:
-
-> **Never tell the user an article is disabled before it actually is.**
+reasoning than in any particular implementation.
 
 Worth thinking about, and worth writing down even if you do not build it:
 
@@ -125,11 +122,48 @@ You will need to touch every layer: the protobuf definition, the Go service, the
 tRPC API, and the React app. The existing read path (`GetArticles` and
 `GetArticleDetails`) is a worked example of that journey - follow it.
 
-The service that applies the change is not ours, so the message you publish has
-to match the shape it expects. That contract - the fields, what happens when a
-message is rejected, and what the queue does and does not guarantee - is written
-up in [external/README.md](external/README.md). Worth reading before you start
-publishing.
+#### The message you need to publish
+
+The service that applies the change is not ours, so your message has to match the
+shape it expects:
+
+```json
+{
+  "type": "article.status.changed",
+  "article_id": "9b7de9fe-b477-5418-b126-2cb5b8aa56a6",
+  "action": "disable",
+  "trace_id": "any-correlation-id"
+}
+```
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| `type` | yes | Must be exactly `article.status.changed`. |
+| `article_id` | yes | The article's UUID, in the usual hyphenated form. |
+| `action` | yes | Either `disable` or `enable`. |
+| `trace_id` | no | Echoed into their logs, so you can follow one change across both services. |
+
+Four things about the queue worth knowing before you design around it:
+
+- **There is a five second delay** before the other service can see your
+  message. That is deliberate, so the asynchronous behaviour is easy to watch.
+- **Delivery is at-least-once**, so the same message may be applied more than
+  once.
+- **Messages are not ordered.** Two changes to the same article published a
+  moment apart may be applied in either order.
+- **A message they cannot understand is not silently dropped.** It is retried a
+  few times and then set aside, and the reason appears in `make logs-consumer`.
+
+You can publish a message by hand to see all this working before you write any
+code:
+
+```bash
+make queue-send MSG='{"type":"article.status.changed","article_id":"9b7de9fe-b477-5418-b126-2cb5b8aa56a6","action":"disable"}'
+make logs-consumer
+```
+
+[external/README.md](external/README.md) covers the rest: what happens in each
+failure case, and how to inspect the dead letter queue.
 
 ### Part two: make it more production ready
 
