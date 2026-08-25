@@ -28,7 +28,7 @@ Then open **<http://localhost:5183>** and you should see a list of forty
 articles. Click one to read it.
 
 If you would like your editor to give you autocomplete and type checking, also
-run:
+run the following command which installs all frontend and backend dependencies:
 
 ```bash
 make install
@@ -36,6 +36,14 @@ make install
 
 That is only for your editor's benefit - the app itself runs entirely in Docker
 and does not need it.
+
+`make install` works with just Docker, but it does a better job if you also have
+[**Node 24**](https://nodejs.org/en/download) (which supplies `pnpm` via
+corepack) and [**Go 1.25**](https://go.dev/dl/) on your machine. Without local
+Node the frontend dependencies are installed through a throwaway Docker
+container - Linux builds, fine for your editor but not for running anything
+directly. Without local Go the module download is skipped entirely, so your
+editor will not resolve imports under `backend/`.
 
 ### Where everything lives
 
@@ -49,14 +57,11 @@ and does not need it.
 | Queue | `localhost:9324` | SQS-compatible queue (external) |
 | Queue console | <http://localhost:9325> | A web view of the queue (external) |
 
-These ports are deliberately unusual so they do not clash with anything else you
-may have running.
-
 ---
 
 ## How the application fits together
 
-This mirrors the shape of our real system, simplified down to one repository.
+This mirrors the shape of our real system though obviously rather simplified.
 
 ```
                       ┌──────────────────────────┐
