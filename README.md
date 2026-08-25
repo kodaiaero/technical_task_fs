@@ -147,6 +147,7 @@ Four things about the queue worth knowing before you design around it:
 
 - **There is a five second delay** before the other service can see your
   message. That is deliberate, so the asynchronous behaviour is easy to watch.
+  Turn it up or down while you work on the UI to test: `make queue-delay DELAY=30`.
 - **Delivery is at-least-once**, so the same message may be applied more than
   once.
 - **Messages are not ordered.** Two changes to the same article published a
@@ -201,6 +202,7 @@ make api-call RPC=GetArticleDetails DATA='{"id":"..."}'
 
 make queue-attrs         # what is sitting on the queue
 make queue-send MSG='{}' # put a message on the queue by hand
+make queue-delay DELAY=30 # hold messages for longer, to watch the async gap
 make queue-purge         # empty the queue
 
 make reset-db            # rebuild the database from the migrations
@@ -237,8 +239,9 @@ consumer cannot understand is retried a few times and then set aside - see
 [external/README.md](external/README.md).
 
 **The queue's delay is configurable.** It is set to five seconds so the
-asynchronous behaviour is easy to see. Turning it up while you work on the UI is
-a sensible thing to do.
+asynchronous behaviour is easy to see. `make queue-delay DELAY=30` will hold
+messages for longer, which is handy while you are working on the UI. It resets
+to five seconds whenever the queue container restarts.
 
 ---
 

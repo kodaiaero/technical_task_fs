@@ -8,6 +8,10 @@ GRPC_SERVICE = sliide.services.articles.api.ArticleAPI
 # Request body for `make api-call`; override on the command line.
 DATA ?= {}
 
+# Seconds for `make queue-delay`. Named DELAY rather than SECONDS because the
+# shell treats SECONDS as a special variable.
+DELAY ?= 5
+
 .DEFAULT_GOAL := help
 
 ## Show this help
@@ -139,9 +143,16 @@ queue-send:
 	@MSG='$(MSG)' curl -s -X POST "$(QUEUE_ENDPOINT_LOCAL)" -d "Action=SendMessage" --data-urlencode "MessageBody=$$MSG" -d "Version=$(SQS_VERSION)"
 	@echo ""
 
+## Change how long the queue holds a message, e.g. make queue-delay DELAY=30
+queue-delay:
+	@curl -s -X POST "$(QUEUE_ENDPOINT_LOCAL)" -d "Action=SetQueueAttributes" \
+		-d "Attribute.1.Name=DelaySeconds" -d "Attribute.1.Value=$(DELAY)" \
+		-d "Version=$(SQS_VERSION)" > /dev/null
+	@echo "Queue delay is now $(DELAY)s. Reverts to the configured default when the queue restarts."
+
 ## Discard every message currently on the queue
 queue-purge:
 	@curl -s -X POST "$(QUEUE_ENDPOINT_LOCAL)" -d "Action=PurgeQueue" -d "Version=$(SQS_VERSION)"
 	@echo ""
 
-.PHONY: help install up down logs-frontend reinstall-frontend api-call generate lint-proto logs logs-api logs-consumer ps restart-api psql reset-db seed-large seed-reset queue-attrs queue-send queue-purge
+.PHONY: help install queue-delay up down logs-frontend reinstall-frontend api-call generate lint-proto logs logs-api logs-consumer ps restart-api psql reset-db seed-large seed-reset queue-attrs queue-send queue-purge

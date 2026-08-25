@@ -20,8 +20,15 @@ Queue: `article-status-changes`
 | `defaultVisibilityTimeout` | 30 seconds | How long a received message is hidden from other consumers before it can be received again. |
 | `deadLettersQueue` | after 3 receives | A message that is received 3 times without being deleted is moved to `article-status-changes-dead-letters`. |
 
-The `delay` is the one setting worth changing while you work - turn it up to
-give yourself longer to watch what happens, or down to iterate faster.
+The `delay` is the one setting worth changing while you work. You do not need to
+edit this file to do it:
+
+```bash
+make queue-delay DELAY=30
+```
+
+That takes effect immediately without a restart, and reverts to the five seconds
+configured here whenever the queue container restarts.
 
 Useful commands:
 
@@ -110,9 +117,10 @@ changing while you work.
 ### Debugging
 
 ```bash
-make logs-consumer     # what we did with your message, and why
-make queue-attrs       # how many messages are waiting
-make queue-purge       # throw away everything currently queued
+make logs-consumer      # what we did with your message, and why
+make queue-attrs        # how many messages are waiting
+make queue-delay DELAY=30  # hold messages for longer before we see them
+make queue-purge        # throw away everything currently queued
 
 # publish a message by hand, without going through your API
 make queue-send MSG='{"type":"article.status.changed","article_id":"...","action":"disable"}'
