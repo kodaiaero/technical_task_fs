@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  ARTICLES_CORE_URL: z.url().default('http://localhost:8091'),
+  ARTICLES_API_URL: z.url().default('http://localhost:8091'),
   SERVER_LISTEN_ADDR: z
     .string()
     .regex(/^[^:]*:\d+$/, 'must be in host:port form')

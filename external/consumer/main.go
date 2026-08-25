@@ -1,18 +1,21 @@
-// Package main stands in for article-ingestion-service: the service that owns
-// article state in production and applies status changes published to SQS.
+// Package main stands in for a service owned by another team, which consumes
+// article status change events from the queue and applies them.
 //
-// It is NOT part of the service you are working on, and you should not need to
-// change anything in this directory. It is here so the queue has something on
-// the other end of it.
+// It is NOT part of the application you are working on, and you should not need
+// to change anything in this directory. It is here so the queue has something
+// on the other end of it.
 package main
 
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
+	"regexp"
 	"syscall"
 	"time"
 
@@ -23,6 +26,40 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+// The published contract for this queue. See ../README.md.
+const (
+	eventTypeArticleStatusChanged = "article.status.changed"
+
+	actionDisable = "disable"
+	actionEnable  = "enable"
+)
+
+var articleIDPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+
+// articleStatusChangedEvent is the only message this service understands.
+type articleStatusChangedEvent struct {
+	Type      string `json:"type"`
+	ArticleID string `json:"article_id"`
+	Action    string `json:"action"`
+	TraceID   string `json:"trace_id"`
+}
+
+func (e articleStatusChangedEvent) validate() error {
+	if e.Type != eventTypeArticleStatusChanged {
+		return fmt.Errorf("type is %q, expected %q", e.Type, eventTypeArticleStatusChanged)
+	}
+
+	if !articleIDPattern.MatchString(e.ArticleID) {
+		return fmt.Errorf("article_id %q is not a UUID", e.ArticleID)
+	}
+
+	if e.Action != actionDisable && e.Action != actionEnable {
+		return fmt.Errorf("action is %q, expected %q or %q", e.Action, actionDisable, actionEnable)
+	}
+
+	return nil
+}
+
 const (
 	receiveWait      = 5 * time.Second
 	receiveBatchSize = 10
@@ -30,6 +67,8 @@ const (
 	handleTimeout    = 10 * time.Second
 	startupTimeout   = 2 * time.Minute
 	startupInterval  = 2 * time.Second
+
+	logKeyError = "error"
 )
 
 func main() {
@@ -40,7 +79,7 @@ func main() {
 
 	db, err := openDatabase(ctx, os.Getenv("DATABASE_URL"), logger)
 	if err != nil {
-		logger.Error("could not reach the database", "error", err)
+		logger.Error("could not reach the database", logKeyError, err)
 		os.Exit(1)
 	}
 	defer db.Close()
@@ -74,7 +113,7 @@ func consume(ctx context.Context, c consumer) {
 				return
 			}
 
-			c.logger.Error("could not receive messages", "error", err)
+			c.logger.ErrorContext(ctx, "could not receive messages", logKeyError, err)
 			wait(ctx, receiveBackoff)
 
 			continue
@@ -87,18 +126,79 @@ func consume(ctx context.Context, c consumer) {
 }
 
 // handle processes one message. A message is only deleted once it has been
-// applied: anything left undeleted becomes visible again when its visibility
+// dealt with: anything left undeleted becomes visible again when its visibility
 // timeout expires, and lands on the dead letter queue after maxReceiveCount
-// attempts.
+// attempts. That is deliberate - a message we cannot understand leaves a trail
+// rather than disappearing.
 func (c consumer) handle(ctx context.Context, message types.Message) {
 	ctx, cancel := context.WithTimeout(ctx, handleTimeout)
 	defer cancel()
 
 	body := aws.ToString(message.Body)
 
-	c.logger.Info("received message", "body", body)
+	var event articleStatusChangedEvent
+	if err := json.Unmarshal([]byte(body), &event); err != nil {
+		c.logger.ErrorContext(ctx, "message is not valid JSON, leaving it for redelivery",
+			logKeyError, err, "body", body)
 
+		return
+	}
+
+	if err := event.validate(); err != nil {
+		c.logger.ErrorContext(ctx, "message does not match the contract, leaving it for redelivery",
+			logKeyError, err, "body", body)
+
+		return
+	}
+
+	logger := c.logger.With(
+		"article_id", event.ArticleID,
+		"action", event.Action,
+		"trace_id", event.TraceID,
+	)
+
+	applied, err := c.apply(ctx, event)
+	if err != nil {
+		// Could be transient, so leave the message for redelivery.
+		logger.ErrorContext(ctx, "could not apply the status change", logKeyError, err)
+
+		return
+	}
+
+	if !applied {
+		// Retrying cannot make a missing article appear, so drop it rather than
+		// filling the dead letter queue with messages that can never succeed.
+		logger.WarnContext(ctx, "no such article, discarding the message")
+		c.delete(ctx, message)
+
+		return
+	}
+
+	logger.InfoContext(ctx, "applied article status change")
 	c.delete(ctx, message)
+}
+
+// apply writes the new status. Reports false when no such article exists.
+//
+// Setting the same status twice is harmless, which matters because the queue
+// guarantees at-least-once delivery: the same message can legitimately arrive
+// more than once.
+func (c consumer) apply(ctx context.Context, event articleStatusChangedEvent) (bool, error) {
+	result, err := c.db.ExecContext(ctx,
+		"UPDATE articles SET disabled = $1 WHERE id = $2",
+		event.Action == actionDisable,
+		event.ArticleID,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return affected > 0, nil
 }
 
 func (c consumer) delete(ctx context.Context, message types.Message) {
@@ -107,7 +207,7 @@ func (c consumer) delete(ctx context.Context, message types.Message) {
 		ReceiptHandle: message.ReceiptHandle,
 	})
 	if err != nil {
-		c.logger.Error("could not delete message", "error", err)
+		c.logger.ErrorContext(ctx, "could not delete message", logKeyError, err)
 	}
 }
 

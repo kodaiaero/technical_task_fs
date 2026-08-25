@@ -10,10 +10,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/sliide/articles-core/internal/articles"
-	"github.com/sliide/articles-core/internal/database"
-	"github.com/sliide/articles-core/internal/queue"
-	api "github.com/sliide/articles-core/pkg/articles/api"
+	"github.com/sliide/articles-backend/internal/articles"
+	"github.com/sliide/articles-backend/internal/database"
+	"github.com/sliide/articles-backend/internal/queue"
+	api "github.com/sliide/articles-backend/pkg/articles/api"
 )
 
 const (

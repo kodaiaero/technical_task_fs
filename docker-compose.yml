@@ -45,7 +45,7 @@ services:
       context: ./frontend
     container_name: articles_frontend
     environment:
-      ARTICLES_CORE_URL: http://api:8081
+      ARTICLES_API_URL: http://api:8081
       SERVER_LISTEN_ADDR: 0.0.0.0:3010
       # Resolved by the browser, so this is a host address rather than a
       # container one.
@@ -58,6 +58,9 @@ services:
       # Keeps the image's node_modules rather than letting the bind mount hide
       # them. Run `make reinstall-frontend` after changing package.json.
       - frontend_node_modules:/app/node_modules
+      # Mounted at the path `../backend/api/proto` resolves to from /app, so
+      # `pnpm generate` works the same inside the container and on your machine.
+      - ./backend/api/proto:/backend/api/proto:ro
     depends_on:
       - api
 

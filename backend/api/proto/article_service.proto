@@ -4,7 +4,7 @@ package sliide.services.articles.api;
 
 import "article.proto";
 
-option go_package = "github.com/sliide/articles-core/pkg/articles/api;articlesapi";
+option go_package = "github.com/sliide/articles-backend/pkg/articles/api;articlesapi";
 
 service ArticleAPI {
   rpc GetArticles(GetArticlesRequest) returns (GetArticlesResponse);

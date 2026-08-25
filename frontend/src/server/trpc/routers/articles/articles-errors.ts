@@ -20,7 +20,7 @@ export function toArticlesTRPCError(error: unknown): TRPCError {
   if (!(error instanceof ConnectError)) {
     return new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
-      message: 'Unexpected error talking to articles-core.',
+      message: 'Unexpected error talking to the API.',
       cause: error,
     });
   }

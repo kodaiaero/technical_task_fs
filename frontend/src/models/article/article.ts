@@ -12,9 +12,9 @@ export interface Article {
   publishedAt: Date;
 
   /**
-   * Whether the article is hidden from users. Applied asynchronously by the
-   * ingestion service, so this is the last state written rather than
-   * necessarily the most recently requested one.
+   * Whether the article is hidden from users. Applied asynchronously, so this
+   * is the last state written rather than necessarily the most recently
+   * requested one.
    */
   disabled: boolean;
 }

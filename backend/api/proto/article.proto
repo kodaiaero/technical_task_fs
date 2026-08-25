@@ -4,7 +4,7 @@ package sliide.services.articles.api;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/sliide/articles-core/pkg/articles/api;articlesapi";
+option go_package = "github.com/sliide/articles-backend/pkg/articles/api;articlesapi";
 
 // Article is the list-shaped view of an article. It deliberately omits the
 // body, which is only served by GetArticleDetails.
@@ -23,8 +23,8 @@ message Article {
   google.protobuf.Timestamp published_at = 8;
 
   // Disabled articles are not served to users. The flag is applied
-  // asynchronously, so it reflects the last state the ingestion service wrote,
-  // not necessarily the most recent request.
+  // asynchronously, so it reflects the last state that was applied, not
+  // necessarily the most recent request.
   bool disabled = 9;
 }
 

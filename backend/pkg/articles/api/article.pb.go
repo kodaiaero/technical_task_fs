@@ -37,8 +37,8 @@ type Article struct {
 	Category    *string                `protobuf:"bytes,7,opt,name=category" json:"category,omitempty"`
 	PublishedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=published_at,json=publishedAt" json:"published_at,omitempty"`
 	// Disabled articles are not served to users. The flag is applied
-	// asynchronously, so it reflects the last state the ingestion service wrote,
-	// not necessarily the most recent request.
+	// asynchronously, so it reflects the last state that was applied, not
+	// necessarily the most recent request.
 	Disabled      *bool `protobuf:"varint,9,opt,name=disabled" json:"disabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -207,7 +207,7 @@ const file_article_proto_rawDesc = "" +
 	"\bdisabled\x18\t \x01(\bR\bdisabled\"e\n" +
 	"\x0eArticleDetails\x12?\n" +
 	"\aarticle\x18\x01 \x01(\v2%.sliide.services.articles.api.ArticleR\aarticle\x12\x12\n" +
-	"\x04body\x18\x02 \x01(\tR\x04bodyB>Z<github.com/sliide/articles-core/pkg/articles/api;articlesapib\beditionsp\xe8\a"
+	"\x04body\x18\x02 \x01(\tR\x04bodyBAZ?github.com/sliide/articles-backend/pkg/articles/api;articlesapib\beditionsp\xe8\a"
 
 var (
 	file_article_proto_rawDescOnce sync.Once

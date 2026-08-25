@@ -206,7 +206,7 @@ const file_article_service_proto_rawDesc = "" +
 	"\n" +
 	"ArticleAPI\x12r\n" +
 	"\vGetArticles\x120.sliide.services.articles.api.GetArticlesRequest\x1a1.sliide.services.articles.api.GetArticlesResponse\x12\x84\x01\n" +
-	"\x11GetArticleDetails\x126.sliide.services.articles.api.GetArticleDetailsRequest\x1a7.sliide.services.articles.api.GetArticleDetailsResponseB>Z<github.com/sliide/articles-core/pkg/articles/api;articlesapib\beditionsp\xe8\a"
+	"\x11GetArticleDetails\x126.sliide.services.articles.api.GetArticleDetailsRequest\x1a7.sliide.services.articles.api.GetArticleDetailsResponseBAZ?github.com/sliide/articles-backend/pkg/articles/api;articlesapib\beditionsp\xe8\a"
 
 var (
 	file_article_service_proto_rawDescOnce sync.Once

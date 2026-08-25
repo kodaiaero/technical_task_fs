@@ -9,13 +9,13 @@ export function createSessionManager(url: string): Http2SessionManager {
   return new Http2SessionManager(url);
 }
 
-export interface CreateArticlesCoreTransportOptions {
+export interface CreateArticlesApiTransportOptions {
   sessionManager: Http2SessionManager;
   url: string;
 }
 
-export function createArticlesCoreTransport(
-  options: CreateArticlesCoreTransportOptions,
+export function createArticlesApiTransport(
+  options: CreateArticlesApiTransportOptions,
 ): Transport {
   return createGrpcTransport({
     baseUrl: options.url,

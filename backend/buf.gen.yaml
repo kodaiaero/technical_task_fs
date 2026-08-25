@@ -4,7 +4,7 @@ inputs:
 plugins:
   - local: protoc-gen-go
     out: ./pkg/articles/api
-    opt: module=github.com/sliide/articles-core/pkg/articles/api
+    opt: module=github.com/sliide/articles-backend/pkg/articles/api
   - local: protoc-gen-go-grpc
     out: ./pkg/articles/api
-    opt: module=github.com/sliide/articles-core/pkg/articles/api
+    opt: module=github.com/sliide/articles-backend/pkg/articles/api

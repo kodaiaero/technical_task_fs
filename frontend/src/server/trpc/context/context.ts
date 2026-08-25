@@ -3,9 +3,9 @@ import { createClient, type Client, type Transport } from '@connectrpc/connect';
 
 import { env } from '@server/env';
 import {
-  createArticlesCoreTransport,
+  createArticlesApiTransport,
   createSessionManager,
-} from '@server/trpc/services/articles-core';
+} from '@server/trpc/services/articles-api';
 import { middleware } from '../trpc';
 
 /**
@@ -13,14 +13,14 @@ import { middleware } from '../trpc';
  *
  * @example
  *   const articlesProcedure = publicProcedure.use(
- *     articlesCoreClientMiddleware('articlesClient', ArticleAPI),
+ *     articlesApiClientMiddleware('articlesClient', ArticleAPI),
  *   );
  *
  *   articlesProcedure.query(async ({ ctx }) => {
  *     // ctx.articlesClient is a typed client for ArticleAPI.
  *   });
  */
-export function articlesCoreClientMiddleware<
+export function articlesApiClientMiddleware<
   TKey extends `${string}Client`,
   TService extends DescService,
 >(key: TKey, service: TService) {
@@ -42,10 +42,10 @@ export interface Context {
 }
 
 // Built once rather than per request, so the HTTP/2 connection is reused.
-const sessionManager = createSessionManager(env.ARTICLES_CORE_URL);
-const transport = createArticlesCoreTransport({
+const sessionManager = createSessionManager(env.ARTICLES_API_URL);
+const transport = createArticlesApiTransport({
   sessionManager,
-  url: env.ARTICLES_CORE_URL,
+  url: env.ARTICLES_API_URL,
 });
 
 export function createContext(): Context {

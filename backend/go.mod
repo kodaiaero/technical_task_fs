@@ -1,4 +1,4 @@
-module github.com/sliide/articles-core
+module github.com/sliide/articles-backend
 
 go 1.25.7
 

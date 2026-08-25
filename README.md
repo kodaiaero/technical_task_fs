@@ -125,6 +125,12 @@ You will need to touch every layer: the protobuf definition, the Go service, the
 tRPC API, and the React app. The existing read path (`GetArticles` and
 `GetArticleDetails`) is a worked example of that journey - follow it.
 
+The service that applies the change is not ours, so the message you publish has
+to match the shape it expects. That contract - the fields, what happens when a
+message is rejected, and what the queue does and does not guarantee - is written
+up in [external/README.md](external/README.md). Worth reading before you start
+publishing.
+
 ### Part two: make it more production ready
 
 The Go service works, but nobody would want to be on call for it. Have a look

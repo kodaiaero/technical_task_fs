@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	api "github.com/sliide/articles-core/pkg/articles/api"
+	api "github.com/sliide/articles-backend/pkg/articles/api"
 )
 
 type Service struct {

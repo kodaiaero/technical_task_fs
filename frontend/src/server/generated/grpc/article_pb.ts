@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file article.proto.
  */
 export const file_article: GenFile = /*@__PURE__*/
-  fileDesc("Cg1hcnRpY2xlLnByb3RvEhxzbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpIr8BCgdBcnRpY2xlEgoKAmlkGAEgASgJEg0KBXRpdGxlGAIgASgJEg8KB3N1bW1hcnkYAyABKAkSEgoKaW1hZ2VfcGF0aBgEIAEoCRIOCgZhdXRob3IYBSABKAkSDgoGc291cmNlGAYgASgJEhAKCGNhdGVnb3J5GAcgASgJEjAKDHB1Ymxpc2hlZF9hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIZGlzYWJsZWQYCSABKAgiVgoOQXJ0aWNsZURldGFpbHMSNgoHYXJ0aWNsZRgBIAEoCzIlLnNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkuQXJ0aWNsZRIMCgRib2R5GAIgASgJQj5aPGdpdGh1Yi5jb20vc2xpaWRlL2FydGljbGVzLWNvcmUvcGtnL2FydGljbGVzL2FwaTthcnRpY2xlc2FwaWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp]);
+  fileDesc("Cg1hcnRpY2xlLnByb3RvEhxzbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpIr8BCgdBcnRpY2xlEgoKAmlkGAEgASgJEg0KBXRpdGxlGAIgASgJEg8KB3N1bW1hcnkYAyABKAkSEgoKaW1hZ2VfcGF0aBgEIAEoCRIOCgZhdXRob3IYBSABKAkSDgoGc291cmNlGAYgASgJEhAKCGNhdGVnb3J5GAcgASgJEjAKDHB1Ymxpc2hlZF9hdBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIZGlzYWJsZWQYCSABKAgiVgoOQXJ0aWNsZURldGFpbHMSNgoHYXJ0aWNsZRgBIAEoCzIlLnNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkuQXJ0aWNsZRIMCgRib2R5GAIgASgJQkFaP2dpdGh1Yi5jb20vc2xpaWRlL2FydGljbGVzLWJhY2tlbmQvcGtnL2FydGljbGVzL2FwaTthcnRpY2xlc2FwaWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp]);
 
 /**
  * Article is the list-shaped view of an article. It deliberately omits the
@@ -66,8 +66,8 @@ export type Article = Message<"sliide.services.articles.api.Article"> & {
 
   /**
    * Disabled articles are not served to users. The flag is applied
-   * asynchronously, so it reflects the last state the ingestion service wrote,
-   * not necessarily the most recent request.
+   * asynchronously, so it reflects the last state that was applied, not
+   * necessarily the most recent request.
    *
    * @generated from field: bool disabled = 9;
    */

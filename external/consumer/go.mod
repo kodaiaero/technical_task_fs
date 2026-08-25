@@ -1,4 +1,4 @@
-module github.com/sliide/article-ingestion-service
+module github.com/sliide/articles-consumer
 
 go 1.25.0
 

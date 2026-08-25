@@ -2,13 +2,13 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 import { ArticleAPI } from '@server/generated/grpc/article_service_pb';
-import { articlesCoreClientMiddleware } from '@server/trpc/context/context';
+import { articlesApiClientMiddleware } from '@server/trpc/context/context';
 import { publicProcedure, router } from '@server/trpc/trpc';
 import { toArticlesTRPCError } from './articles-errors';
 import { mapGrpcArticle, mapGrpcArticleDetails } from './articles-mapping';
 
 const articlesProcedure = publicProcedure.use(
-  articlesCoreClientMiddleware('articlesClient', ArticleAPI),
+  articlesApiClientMiddleware('articlesClient', ArticleAPI),
 );
 
 export const articlesRouter = router({
@@ -34,7 +34,7 @@ export const articlesRouter = router({
         if (!response.article) {
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'articles-core returned no article.',
+            message: 'The API returned no article.',
           });
         }
 
