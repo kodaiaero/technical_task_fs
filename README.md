@@ -2,7 +2,8 @@
 
 Congratulations on reaching this stage, and thank you for giving us your time.
 
-We have tried to make this task feel like a normal Tuesday rather than an exam.
+We have tried to make this task feel like a normal working day rather than an exam.
+
 You are given a small but complete application that consists of:
 - A Go backend
 - A Node backend for frontend
