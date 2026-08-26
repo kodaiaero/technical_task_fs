@@ -125,6 +125,14 @@ You will need to touch every layer: the protobuf definition, the Go service, the
 tRPC API, and the React app. The existing read path (`GetArticles` and
 `GetArticleDetails`) is a worked example of that journey.
 
+> **Whenever you change the proto contract, run `make generate`.** The Go and
+> TypeScript clients in `backend/pkg/articles/api` and
+> `frontend/src/server/generated/grpc` are generated from
+> `backend/api/proto`, so nothing sees your new RPC or field until you
+> regenerate them. It spins up a Docker container to do the work, so give it a
+> little time - the first run in particular is not instant. Commit the
+> regenerated files alongside the `.proto` change.
+
 #### The message you need to publish
 
 The service that applies the change is not ours, so your message has to match the
@@ -212,7 +220,9 @@ make reset-db            # rebuild the database from the migrations
 ```
 
 `make generate` and `make lint-proto` run inside Docker, so you do not need
-`buf`, `protoc` or Go installed to use them.
+`buf`, `protoc` or Go installed to use them. That does mean `make generate`
+takes a little while - it builds a tools image and runs two containers - so do
+not assume it has hung.
 
 ---
 
