@@ -3,12 +3,16 @@
 Congratulations on reaching this stage, and thank you for giving us your time.
 
 We have tried to make this task feel like a normal Tuesday rather than an exam.
-You are given a small but complete application - a Go backend, a Node
-backend-for-frontend, a React web app and a Postgres database - and asked to add
-one feature to it, then make the service around that feature more production
+You are given a small but complete application that consists of:
+- A Go backend
+- A Node backend for frontend
+- A React web app
+- A Postgres database - 
+
+We would like you to add one feature to it, then make the service around that feature more production
 ready.
 
-There is deliberately more here than anyone could finish. That is the point: we
+There is deliberately more here than anyone could finish and this is the point. We
 are interested in what you choose to do and why, not in a completed checklist.
 
 ---
@@ -30,9 +34,9 @@ make up
 ```
 
 That builds and starts everything. The first run takes a couple of minutes while
-images build; after that it is about ten seconds.
+images build and after that it is about ten seconds.
 
-Then open **<http://localhost:5183>** and you should see a list of forty
+When the images are up and running head to **<http://localhost:5183>** in your browser, and you should see a list of forty
 articles. Click one to read it.
 
 If you would like your editor to give you autocomplete and type checking, also
@@ -46,7 +50,7 @@ make install
 [**Node 24**](https://nodejs.org/en/download) (which supplies `pnpm` via
 corepack) and [**Go 1.26**](https://go.dev/dl/) on your machine. Without local
 Node the frontend dependencies are installed through a throwaway Docker
-container - Linux builds, fine for your editor but not for running anything
+container as Linux builds. This is fine for your editor but not for running anything
 directly. Without local Go the module download is skipped entirely, so your
 editor will not resolve imports under `backend/`.
 
@@ -65,9 +69,6 @@ editor will not resolve imports under `backend/`.
 ---
 
 ## How the application fits together
-
-This mirrors the shape of our real system though obviously rather simplified.
-
 ```
                       ┌──────────────────────────┐
    browser ──────────►│  frontend/               │
@@ -94,24 +95,24 @@ This mirrors the shape of our real system though obviously rather simplified.
 - **`frontend/`** - React 19, TanStack Router and Query, Tailwind, and a Fastify back end
   for front end server exposing a typed tRPC API. `src/models` holds types shared between the
   two.
-- **`backend/`** - a Go gRPC service over Postgres. Protobuf definitions live in
+- **`backend/`** - A Go gRPC service over Postgres. Protobuf definitions live in
   `backend/api/proto`.
-- **`external/`** - stands in for things we do not own. **Please do not change
+- **`external/`** - Stands in for things we do not own. **Please do not change
   anything in here.** See [external/README.md](external/README.md).
 
 ---
 
 ## Your task
 
-### Part one: add a disable button
+### Part one: Add a disable button
 
 Editors need to be able to take an article down, and put it back up again. Add
 that control to the article page.
 
 The catch is how the change is applied. Our API does not write the change
-itself - it publishes a message to a queue, and a service we do not own picks
-that message up and applies it, usually a few seconds later. So the API can tell
-you the request was *accepted*, but it can never tell you the change has
+itself, it publishes a message to a queue, and a service/system which we do not own picks
+that message up and applies it. Said system is async so it usually applies a few seconds later. The API can therefore tell
+you that the request was *accepted*, but it can never tell you the change has
 *happened*.
 
 That leaves you with a UX problem:
@@ -154,16 +155,19 @@ shape it expects:
 | `action` | yes | Either `disable` or `enable`. |
 | `trace_id` | no | Echoed into their logs, so you can follow one change across both services. |
 
+
+#### Queue Caveats
+
 Four things about the queue worth knowing before you design around it:
 
-- **There is a five second delay** before the other service can see your
+1. **There is a five second delay** before the other service can see your
   message. That is deliberate, so the asynchronous behaviour is easy to watch.
   Turn it up or down while you work on the UI to test: `make queue-delay DELAY=30`.
-- **Delivery is at-least-once**, so the same message may be applied more than
+2. **Delivery is at least once**, so the same message may be applied more than
   once.
-- **Messages are not ordered.** Two changes to the same article published a
+3. **Messages are not ordered.** Two changes to the same article published a
   moment apart may be applied in either order.
-- **A message they cannot understand is not silently dropped.** It is retried a
+4. **A message they cannot understand is not silently dropped.** It is retried a
   few times and then set aside, and the reason appears in `make logs-consumer`.
 
 You can publish a message by hand to see all this working before you write any
@@ -177,7 +181,7 @@ make logs-consumer
 [external/README.md](external/README.md) covers the rest: what happens in each
 failure case, and how to inspect the dead letter queue.
 
-### Part two: make the go service more production ready
+### Part two: Make the go service more production ready
 
 The Go service works, but nobody would want to be on call for it. Have a look
 through it with an operational eye and improve what you judge most important.
