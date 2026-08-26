@@ -17,6 +17,14 @@ are interested in what you choose to do and why, not in a completed checklist.
 
 You need **Docker** and **Make** to be able to spin up the project.
 
+> **A note on operating systems.** We built and tested this task on macOS.
+> Everything runs in Docker so it should behave the same anywhere, but we have
+> not run it on Linux or Windows ourselves - the one difference we know of is
+> that `make generate` writes its output as `root` on a Linux host. If you hit
+> anything else platform specific, please tell us via your recruiter rather than
+> spending your own time on it. That is our bug rather than yours so we should be
+> the ones to fix it. Though bonus points for any hints :D
+
 ```bash
 make up
 ```
