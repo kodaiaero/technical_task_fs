@@ -15,7 +15,7 @@ are interested in what you choose to do and why, not in a completed checklist.
 
 ## Getting started
 
-You need **Docker** and **Make**. Nothing else.
+You need **Docker** and **Make** to be able to spin up the project.
 
 ```bash
 make up
@@ -33,9 +33,6 @@ run the following command which installs all frontend and backend dependencies:
 ```bash
 make install
 ```
-
-That is only for your editor's benefit - the app itself runs entirely in Docker
-and does not need it.
 
 `make install` works with just Docker, but it does a better job if you also have
 [**Node 24**](https://nodejs.org/en/download) (which supplies `pnpm` via
@@ -86,8 +83,8 @@ This mirrors the shape of our real system though obviously rather simplified.
                                                    └────────────────────────┘
 ```
 
-- **`frontend/`** - React 19, TanStack Router and Query, Tailwind, and a Fastify
-  server exposing a typed tRPC API. `src/models` holds types shared between the
+- **`frontend/`** - React 19, TanStack Router and Query, Tailwind, and a Fastify back end
+  for front end server exposing a typed tRPC API. `src/models` holds types shared between the
   two.
 - **`backend/`** - a Go gRPC service over Postgres. Protobuf definitions live in
   `backend/api/proto`.
@@ -109,23 +106,16 @@ that message up and applies it, usually a few seconds later. So the API can tell
 you the request was *accepted*, but it can never tell you the change has
 *happened*.
 
-That leaves you with a genuinely interesting problem:
+That leaves you with a UX problem:
 
 > **What do you show the person who just clicked the button?**
 
 There is no single right answer, and we are far more interested in your
 reasoning than in any particular implementation.
 
-Worth thinking about, and worth writing down even if you do not build it:
-
-- What if they reload the page while the change is in flight?
-- What does a *different* editor see in the meantime?
-- What if the message is lost, or takes a minute?
-- What if they click the button five times?
-
 You will need to touch every layer: the protobuf definition, the Go service, the
 tRPC API, and the React app. The existing read path (`GetArticles` and
-`GetArticleDetails`) is a worked example of that journey - follow it.
+`GetArticleDetails`) is a worked example of that journey.
 
 #### The message you need to publish
 
@@ -161,7 +151,7 @@ Four things about the queue worth knowing before you design around it:
   few times and then set aside, and the reason appears in `make logs-consumer`.
 
 You can publish a message by hand to see all this working before you write any
-code:
+code if you wish:
 
 ```bash
 make queue-send MSG='{"type":"article.status.changed","article_id":"9b7de9fe-b477-5418-b126-2cb5b8aa56a6","action":"disable"}'
@@ -171,7 +161,7 @@ make logs-consumer
 [external/README.md](external/README.md) covers the rest: what happens in each
 failure case, and how to inspect the dead letter queue.
 
-### Part two: make it more production ready
+### Part two: make the go service more production ready
 
 The Go service works, but nobody would want to be on call for it. Have a look
 through it with an operational eye and improve what you judge most important.
@@ -220,44 +210,18 @@ make seed-reset          # remove them again
 
 ---
 
-## Things that will save you time
-
-**Adding a database migration.** Add a new numbered file in
-`backend/internal/database/migrations/`. Migrations run automatically when the
-API starts.
-
-**Editing a migration that has already run does nothing.** Applied migrations
-are not re-checked, so your change will be silently ignored. Either add a new
-migration, or run `make reset-db` to rebuild from scratch.
-
-**After changing `frontend/package.json`**, run `make reinstall-frontend`. The
-container keeps its dependencies in a Docker volume, so a plain restart will not
-pick up a new package.
-
-**The protobuf files use `edition = "2023"`.** Scalar fields generate as
-pointers in Go, so use the getters (`req.GetId()`) rather than reading fields
-directly.
-
-**When a queued message seems to vanish**, `make logs-consumer` will usually
-tell you why, and `make queue-attrs` shows what is still waiting. A message the
-consumer cannot understand is retried a few times and then set aside - see
-[external/README.md](external/README.md).
-
-**The queue's delay is configurable.** It is set to five seconds so the
-asynchronous behaviour is easy to see. `make queue-delay DELAY=30` will hold
-messages for longer, which is handy while you are working on the UI. It resets
-to five seconds whenever the queue container restarts.
-
----
-
 ## How long to spend
 
-**Please spend no more than around four hours on this.** We mean it - we are not
-trying to consume your weekend, and we would rather read a focused submission
-with honest notes about what you left out.
+**We do not enforce a time limit**, but as a rough guide, around two/three hours is
+plenty - we are not trying to consume your weekend. We would much rather read a
+focused submission with honest notes about what you left out than a complete one
+that cost you a Sunday.
 
-If you run out of time mid-thought, say so in your README. "I would have done X
-next, for this reason" tells us as much as the code does.
+So when you run out of time, stop and write the rest down. A short list in your
+notes of what you would come to next, almost like a to-do list, is genuinely
+useful to us - "I would have done X next, for this reason" tells us as much as
+the code does. We are very happy to discuss the things you did not get around to
+implementing.
 
 ## Using AI tools
 
@@ -265,11 +229,10 @@ Please **do** use them if that is how you normally work - we do. The only thing
 we ask is that **you understand and can explain everything you submit**, because
 we will go through it with you.
 
-Include an `AI_USAGE.md` covering:
-
-- The prompts that did the heavy lifting
-- How you steered it when it went wrong
-- How you checked the output was correct
+We are genuinely interested in how you work with these tools, 
+though, so expect it to come up on the call - what you leaned
+on them for, how you steered them when they went wrong, and how you satisfied
+yourself the output was right.
 
 If you would rather not use AI, that is completely fine too - just say so.
 
@@ -280,15 +243,13 @@ If you would rather not use AI, that is completely fine too - just say so.
 Please **do not** push to this repository. Either send us a link to your own
 fork or repository, or zip up the project and email it to your recruiter.
 
-Include a short **README** of your own covering:
+Include a short **SUBMISSION_README** of your own covering:
 
 - What you built, and how to run it if anything differs from the above
 - The decisions you made, and any assumptions
 - How you approached the "what do we show the user?" problem
 - What you would do next, and why - especially for anything you spotted but did
-  not have time to fix
-
-Plus **`AI_USAGE.md`** if you used AI.
+  not have time to fix/implement
 
 ---
 
@@ -298,7 +259,6 @@ Please ask - via your recruiter, any time. A question about the task is never
 held against you, and it usually means we have written something ambiguously.
 
 Once we have your submission we will review it and, if it looks good, invite you
-to a call to walk us through it. That conversation is the part we enjoy most:
-expect us to ask why, not to quiz you on syntax.
+to a call to walk us through it.
 
 Good luck, and thank you again for your time.
