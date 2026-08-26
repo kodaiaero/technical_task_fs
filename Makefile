@@ -101,7 +101,7 @@ api-call:
 		buf curl --protocol grpc --http2-prior-knowledge \
 		"http://api:8081/$(GRPC_SERVICE)/$(RPC)" -d "$$DATA"
 
-## Regenerate Go code from the protobuf definitions
+## Regenerate the Go and TypeScript code from the protobuf definitions
 generate:
 	@docker build -q -t articles-tools -f backend/Dockerfile.tools backend > /dev/null
 	@docker run --rm -v "$(PWD)/backend:/app" -v articles_go_mod_cache:/go/pkg/mod articles-tools buf generate
