@@ -1,108 +1,285 @@
-#  Full Stack Developer Technical Task
+# Full Stack Developer Technical Task
 
-## CONGRATULATIONS! 
-## You've reached the next stage, which is solving a Sliide practical test
-________________________________________________________________________
-## Overview
+Congratulations on reaching this stage, and thank you for giving us your time.
 
-You are tasked with building an internal tool (without external stakeholders or customers) for managing hierarchical categories. Digital content that we provide to the user gets tagged with these categories. This enables us to provide personalised content which matches a user's interests.
-We have provided you with a database to get you started, and we would like you to build the API and UI pieces to complete the tool.
+We have tried to make this task feel like a normal working day rather than an exam.
 
-### Understanding the categories logic
+You are given a small but complete application that consists of:
+- A Go backend
+- A Node backend for frontend
+- A React web app
+- A Postgres database - 
 
-Our categories relate to each other in a way that allows a Parent category like `Sport` to have more specific child categories such as `Football`. This can granulate further in that this may also have a child category of `World Cup`, which is even more specific.
+We would like you to add one feature to it, then make the service around that feature more production
+ready.
 
-For Example:
-Bottom up:
-`World Cup -> Football -> Sport`
+There is deliberately more here than anyone could finish and this is the point. We
+are interested in what you choose to do and why, not in a completed checklist.
 
-Top Down:
-`Sport -> Football -> World Cup`
+---
 
-Another good reference is Google's content categories. [See here.](https://cloud.google.com/natural-language/docs/categories#categories_version_2)
+## Getting started
 
-## Task Requirements
+You need **Docker** and **Make** to be able to spin up the project.
 
-The technology stack choice is entirely up to you. Feel free to use any frontend and backend technologies that you're comfortable with, including any libraries or third party package you like :)
-
-### Core Functionality
-We'd like you to build a full-stack application which allows users to:
-1. **View the categories**
-2. **Modify category relationships** by changing the parent -> child linkages between categories
-
-### Technical Constraints
-- Use any frontend and backend technologies that you're comfortable with. Make sure to include the setup instructions for us to review your solution in a README file.
-
-## AI Tool Usage
-
-We **encourage** you to use AI tools (ChatGPT, Claude, Copilot, etc.) to complete this task. However, you **MUST understand** the code you submit
-
-## Getting Started
-
-### Database Structure
-We've provided a PostgreSQL database with a `categories` table containing:
-- `id` (SERIAL INTEGER, PRIMARY KEY)
-- `name` (VARCHAR, UNIQUE)
-- `description` (TEXT)
-- `parent_id` (INTEGER, NULLABLE, foreign key referencing categories.id)
-
-### Database Setup
-1. Ensure Docker and Docker Compose are installed:
-    - [Install Docker Desktop](https://docs.docker.com/get-docker/) (includes Docker Compose)
-    - Or install separately: [Docker](https://docs.docker.com/engine/install/) + [Docker Compose](https://docs.docker.com/compose/install/)
-2. Run `docker-compose up -d` to start the PostgreSQL database
-3. The database will be available at `localhost:5432`
-    - Database: `categories_db`
-    - Username: `developer`
-    - Password: `devpassword`
-
-The database comes pre-populated with sample hierarchical data.
-
-### Exploring the Database
-You can explore the categories table using psql:
+> **A note on operating systems.** We built and tested this task on macOS.
+> Everything runs in Docker so it should behave the same anywhere, but we have
+> not run it on Linux or Windows ourselves - the one difference we know of is
+> that `make generate` writes its output as `root` on a Linux host. If you hit
+> anything else platform specific, please tell us via your recruiter rather than
+> spending your own time on it. That is our bug rather than yours so we should be
+> the ones to fix it. Though bonus points for any hints :D
 
 ```bash
-# View all categories
-docker exec categories_postgres psql -U developer -d categories_db -c "SELECT * FROM categories ORDER BY id;"
-
-# Interactive psql session (use -it flags for interactive mode)
-docker exec -it categories_postgres psql -U developer -d categories_db
+make up
 ```
 
-## Submission Requirements
+That builds and starts everything. The first run takes a couple of minutes while
+images build and after that it is about ten seconds.
 
-### Code Delivery
-- **DO NOT** push your solution to our public GitHub repository
-- Feel free to create either your own repository as a fork or **ZIP** your entire project directory and **EMAIL** the file to our recruiter
+When the images are up and running head to **<http://localhost:5183>** in your browser, and you should see a list of forty
+articles. Click one to read it.
 
-### Documentation Requirements
-Your submission must include:
+If you would like your editor to give you autocomplete and type checking, also
+run the following command which installs all frontend and backend dependencies:
 
-1. A **README.md** file with:
-    - Clear setup instructions (assume we have a clean machine)
-        - Provide **complete setup instructions** - don't assume we have your tools installed
-        - Try to make your setup as easy to use as possible (Docker, one-command setup, etc.)
-        - Include any dependencies, environment variables, or configuration needed
-    - Details of how to run the application
-    - Your technology choices and reasoning. This can also include assumptions which you have made
-    - Comments about further work that would be required to turn this code from "proof of concept" quality to production ready code 
+```bash
+make install
+```
 
-2. If you have decided to use AI, a **AI_USAGE.md** file with:
-    - The key prompts which you used
-    - Notes on how you guided the AI
-    - Details of how you validated the AI code
+`make install` works with just Docker, but it does a better job if you also have
+[**Node 24**](https://nodejs.org/en/download) (which supplies `pnpm` via
+corepack) and [**Go 1.26**](https://go.dev/dl/) on your machine. Without local
+Node the frontend dependencies are installed through a throwaway Docker
+container as Linux builds. This is fine for your editor but not for running anything
+directly. Without local Go the module download is skipped entirely, so your
+editor will not resolve imports under `backend/`.
 
-## Expectation
+### Where everything lives
 
-Focus on creating a working solution rather than a perfect one. The UI does not have to be aesthetically pleasing, it can be functional (we all know that less better code > loads of worse code). 
+| | Address | |
+| --- | --- | --- |
+| Web app | <http://localhost:5183> | The React app - start here |
+| BFF | `localhost:3010` | tRPC API the web app talks to |
+| Go API | `localhost:8091` | gRPC API the BFF talks to |
+| Postgres | `localhost:5442` | `developer` / `devpassword` / `articles_db` |
+| Image CDN | <http://localhost:8092> | Article images (external) |
+| Queue | `localhost:9324` | SQS-compatible queue (external) |
+| Queue console | <http://localhost:9325> | A web view of the queue (external) |
 
-## Questions?
+---
 
-If you have any clarifications about this task and its requirements then please do get in touch with us via our recruiter
+## How the application fits together
+```
+                      ┌──────────────────────────┐
+   browser ──────────►│  frontend/               │
+                      │    src/client   React    │
+                      │    src/server   BFF      │
+                      └────────────┬─────────────┘
+                                   │  gRPC
+                      ┌────────────▼─────────────┐
+                      │  backend/                │
+                      │    Go API                │──── publishes ───┐
+                      └────────────┬─────────────┘                  │
+                                   │  SQL                           │
+                      ┌────────────▼─────────────┐        ┌─────────▼────────┐
+                      │        Postgres          │        │   queue (SQS)    │
+                      └────────────▲─────────────┘        └─────────┬────────┘
+                                   │                                │
+                                   │  SQL          ┌────────────────▼───────┐
+                                   └───────────────│  external/consumer     │
+                                                   │  (another team's       │
+                                                   │   service)             │
+                                                   └────────────────────────┘
+```
 
-## Next Steps
-Once we have received your task along with any other documentation which you feel is necessary for your submission, we will review it. 
+- **`frontend/`** - React 19, TanStack Router and Query, Tailwind, and a Fastify back end
+  for front end server exposing a typed tRPC API. `src/models` holds types shared between the
+  two.
+- **`backend/`** - A Go gRPC service over Postgres. Protobuf definitions live in
+  `backend/api/proto`.
+- **`external/`** - Stands in for things we do not own. **Please do not change
+  anything in here.** See [external/README.md](external/README.md).
 
-If we like what we see, we'll invite you to join us on a call for a discussion where we’ll ask you to go through your task, explaining any decisions that you've made.
+---
 
-## Good luck!
+## Your task
+
+### Part one: Add a disable button
+
+Editors need to be able to take an article down, and put it back up again. Add
+that control to the article page.
+
+The catch is how the change is applied. Our API does not write the change
+itself, it publishes a message to a queue, and a service/system which we do not own picks
+that message up and applies it. Said system is async so it usually applies a few seconds later. The API can therefore tell
+you that the request was *accepted*, but it can never tell you the change has
+*happened*.
+
+That leaves you with a UX problem:
+
+> **What do you show the person who just clicked the button?**
+
+There is no single right answer, and we are far more interested in your
+reasoning than in any particular implementation.
+
+You will need to touch every layer: the protobuf definition, the Go service, the
+tRPC API, and the React app. The existing read path (`GetArticles` and
+`GetArticleDetails`) is a worked example of that journey.
+
+> **Whenever you change the proto contract, run `make generate`.** The Go and
+> TypeScript clients in `backend/pkg/articles/api` and
+> `frontend/src/server/generated/grpc` are generated from
+> `backend/api/proto`, so nothing sees your new RPC or field until you
+> regenerate them. It spins up a Docker container to do the work, so give it a
+> little time - the first run in particular is not instant. Commit the
+> regenerated files alongside the `.proto` change.
+
+#### The message you need to publish
+
+The service that applies the change is not ours, so your message has to match the
+shape it expects:
+
+```json
+{
+  "type": "article.status.changed",
+  "article_id": "9b7de9fe-b477-5418-b126-2cb5b8aa56a6",
+  "action": "disable",
+  "trace_id": "any-correlation-id"
+}
+```
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| `type` | yes | Must be exactly `article.status.changed`. |
+| `article_id` | yes | The article's UUID, in the usual hyphenated form. |
+| `action` | yes | Either `disable` or `enable`. |
+| `trace_id` | no | Echoed into their logs, so you can follow one change across both services. |
+
+
+#### Queue Caveats
+
+Four things about the queue worth knowing before you design around it:
+
+1. **There is a five second delay** before the other service can see your
+  message. That is deliberate, so the asynchronous behaviour is easy to watch.
+  Turn it up or down while you work on the UI to test: `make queue-delay DELAY=30`.
+2. **Delivery is at least once**, so the same message may be applied more than
+  once.
+3. **Messages are not ordered.** Two changes to the same article published a
+  moment apart may be applied in either order.
+4. **A message they cannot understand is not silently dropped.** It is retried a
+  few times and then set aside, and the reason appears in `make logs-consumer`.
+
+You can publish a message by hand to see all this working before you write any
+code if you wish:
+
+```bash
+make queue-send MSG='{"type":"article.status.changed","article_id":"9b7de9fe-b477-5418-b126-2cb5b8aa56a6","action":"disable"}'
+make logs-consumer
+```
+
+[external/README.md](external/README.md) covers the rest: what happens in each
+failure case, and how to inspect the dead letter queue.
+
+### Part two: Make the go service more production ready
+
+The Go service works, but nobody would want to be on call for it. Have a look
+through it with an operational eye and improve what you judge most important.
+
+We would rather see **three things done properly, plus a written list of what
+you would do next and why**, than twelve things half done. Deciding what matters
+most is the interesting part of this exercise, so please tell us how you
+prioritised.
+
+The web app and BFF are in better shape - treat them as the standard to work to
+rather than something needing repair.
+
+---
+
+## Useful commands
+
+Run `make` on its own to see everything. The ones you are most likely to want:
+
+```bash
+make up                  # start everything
+make down                # stop everything
+make logs                # follow all logs
+make logs-api            # just the Go service
+make logs-frontend       # just the web app and BFF
+make logs-consumer       # just the external consumer
+make psql                # a database shell
+
+make generate            # regenerate code after editing a .proto
+make lint-proto          # lint the protobuf definitions
+
+make api-call RPC=GetArticles                  # call the Go API directly
+make api-call RPC=GetArticleDetails DATA='{"id":"..."}'
+
+make queue-attrs         # what is sitting on the queue
+make queue-send MSG='{}' # put a message on the queue by hand
+make queue-delay DELAY=30 # hold messages for longer, to watch the async gap
+make queue-purge         # empty the queue
+
+make reset-db            # rebuild the database from the migrations
+```
+
+`make generate` and `make lint-proto` run inside Docker, so you do not need
+`buf`, `protoc` or Go installed to use them. That does mean `make generate`
+takes a little while - it builds a tools image and runs two containers - so do
+not assume it has hung.
+
+---
+
+## How long to spend
+
+**We do not enforce a time limit**, but as a rough guide, around two/three hours is
+plenty - we are not trying to consume your weekend. We would much rather read a
+focused submission with honest notes about what you left out than a complete one
+that cost you a Sunday.
+
+So when you run out of time, stop and write the rest down. A short list in your
+notes of what you would come to next, almost like a to-do list, is genuinely
+useful to us - "I would have done X next, for this reason" tells us as much as
+the code does. We are very happy to discuss the things you did not get around to
+implementing.
+
+## Using AI tools
+
+Please **do** use them if that is how you normally work - we do. The only thing
+we ask is that **you understand and can explain everything you submit**, because
+we will go through it with you.
+
+We are genuinely interested in how you work with these tools, 
+though, so expect it to come up on the call - what you leaned
+on them for, how you steered them when they went wrong, and how you satisfied
+yourself the output was right.
+
+If you would rather not use AI, that is completely fine too - just say so.
+
+---
+
+## Submitting your work
+
+Please **do not** push to this repository. Either send us a link to your own
+fork or repository, or zip up the project and email it to your recruiter.
+
+Include a short **SUBMISSION_README** of your own covering:
+
+- What you built, and how to run it if anything differs from the above
+- The decisions you made, and any assumptions
+- How you approached the "what do we show the user?" problem
+- What you would do next, and why - especially for anything you spotted but did
+  not have time to fix/implement
+
+---
+
+## Anything unclear?
+
+Please ask - via your recruiter, any time. A question about the task is never
+held against you, and it usually means we have written something ambiguously.
+
+Once we have your submission we will review it and, if it looks good, invite you
+to a call to walk us through it.
+
+Good luck, and thank you again for your time.

@@ -1,23 +1,107 @@
-version: '3.8'
+name: articles
 
 services:
+  # ---------------------------------------------------------------------------
+  # Our stack.
+  # ---------------------------------------------------------------------------
   postgres:
     image: postgres:17
-    container_name: categories_postgres
+    container_name: articles_postgres
     environment:
-      POSTGRES_DB: categories_db
+      POSTGRES_DB: articles_db
       POSTGRES_USER: developer
       POSTGRES_PASSWORD: devpassword
     ports:
-      - "5432:5432"
+      - "5442:5432"
     volumes:
-      - ./database/init:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U developer -d categories_db"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U developer -d articles_db"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    container_name: articles_api
+    environment:
+      QUEUE_ENDPOINT: http://elasticmq:9324
+      QUEUE_URL: http://elasticmq:9324/000000000000/article-status-changes
+    ports:
+      - "8091:8081"
+    volumes:
+      - ./backend:/app
+      - go_mod_cache:/go/pkg/mod
+      - go_build_cache:/root/.cache/go-build
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticmq:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: articles_frontend
+    environment:
+      ARTICLES_API_URL: http://api:8081
+      SERVER_LISTEN_ADDR: 0.0.0.0:3010
+      # Resolved by the browser, so this is a host address rather than a
+      # container one.
+      VITE_IMAGE_BASE_URL: http://localhost:8092
+    ports:
+      - "5183:5183"
+      - "3010:3010"
+    volumes:
+      - ./frontend:/app
+      # Keeps the image's node_modules rather than letting the bind mount hide
+      # them. Run `make reinstall-frontend` after changing package.json.
+      - frontend_node_modules:/app/node_modules
+      # Mounted at the path `../backend/api/proto` resolves to from /app, so
+      # `pnpm generate` works the same inside the container and on your machine.
+      - ./backend/api/proto:/backend/api/proto:ro
+    depends_on:
+      - api
+
+  # ---------------------------------------------------------------------------
+  # Stands in for services we do not own. See external/README.md.
+  # Treat these as managed infrastructure: you would not deploy or patch them.
+  # ---------------------------------------------------------------------------
+  elasticmq:
+    image: softwaremill/elasticmq-native:1.6.14
+    container_name: articles_queue
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./external/elasticmq/elasticmq.conf:/opt/elasticmq.conf:ro
+
+  cdn:
+    image: nginx:1.29-alpine
+    container_name: articles_cdn
+    ports:
+      - "8092:80"
+    volumes:
+      - ./external/cdn/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./external/cdn/images:/usr/share/nginx/html:ro
+
+  consumer:
+    build:
+      context: ./external/consumer
+    container_name: articles_consumer
+    environment:
+      DATABASE_URL: postgres://developer:devpassword@postgres:5432/articles_db?sslmode=disable
+      QUEUE_ENDPOINT: http://elasticmq:9324
+      QUEUE_URL: http://elasticmq:9324/000000000000/article-status-changes
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticmq:
+        condition: service_started
 
 volumes:
   postgres_data:
+  frontend_node_modules:
+  go_mod_cache:
+  go_build_cache:

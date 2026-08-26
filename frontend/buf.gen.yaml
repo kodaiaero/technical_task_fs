@@ -1,0 +1,8 @@
+version: v2
+# The protos live with the service that owns them.
+inputs:
+  - directory: ../backend/api/proto
+plugins:
+  - local: ./node_modules/.bin/protoc-gen-es
+    out: src/server/generated/grpc
+    opt: target=ts

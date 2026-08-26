@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2024",
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    "moduleResolution": "bundler",
+    "module": "preserve",
+    "noEmit": true,
+
+    "lib": ["es2024", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
+
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@client/*": ["./src/client/*"],
+      "@server/*": ["./src/server/*"],
+      "@models/*": ["./src/models/*"]
+    }
+  },
+  "include": ["./src"],
+  "exclude": ["node_modules"]
+}

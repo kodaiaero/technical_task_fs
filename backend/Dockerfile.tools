@@ -1,0 +1,13 @@
+# Toolchain for code generation. Everything is pinned here so `make generate`
+# produces the same output on any machine, and so nothing needs installing
+# locally - not even buf.
+
+FROM golang:1.26-alpine
+
+RUN apk add --no-cache git
+
+RUN go install github.com/bufbuild/buf/cmd/buf@v1.72.0 \
+    && go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12 \
+    && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
+
+WORKDIR /app

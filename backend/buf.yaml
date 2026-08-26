@@ -1,0 +1,19 @@
+version: v2
+modules:
+  - path: ./api/proto
+lint:
+  use:
+    - STANDARD
+  except:
+    # Ignore version suffix on the package name.
+    - PACKAGE_VERSION_SUFFIX
+    # We don't require the package name to match the directory path.
+    - PACKAGE_DIRECTORY_MATCH
+    # No prefix or suffix requirement on enums.
+    - ENUM_VALUE_PREFIX
+    - ENUM_ZERO_VALUE_SUFFIX
+    - FIELD_NOT_REQUIRED
+  service_suffix: API
+breaking:
+  use:
+    - WIRE

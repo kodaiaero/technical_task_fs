@@ -1,0 +1,28 @@
+edition = "2023";
+
+package sliide.services.articles.api;
+
+import "article.proto";
+
+option go_package = "github.com/sliide/articles-backend/pkg/articles/api;articlesapi";
+
+service ArticleAPI {
+  rpc GetArticles(GetArticlesRequest) returns (GetArticlesResponse);
+  rpc GetArticleDetails(GetArticleDetailsRequest) returns (GetArticleDetailsResponse);
+}
+
+// Empty for now, rather than google.protobuf.Empty, so fields can be added
+// without changing the method signature.
+message GetArticlesRequest {}
+
+message GetArticlesResponse {
+  repeated Article articles = 1;
+}
+
+message GetArticleDetailsRequest {
+  string id = 1;
+}
+
+message GetArticleDetailsResponse {
+  ArticleDetails article = 1;
+}
