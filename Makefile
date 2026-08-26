@@ -25,7 +25,6 @@ help:
 # Not needed to run anything: `make up` installs dependencies inside the
 # containers. This is purely so your editor can resolve imports and give you
 # autocomplete and type checking.
-## Install dependencies on your machine, for editor support
 install:
 	@if command -v pnpm > /dev/null 2>&1; then \
 		echo "Installing web dependencies with local pnpm..."; \
@@ -119,14 +118,6 @@ lint-proto:
 psql:
 	@docker compose exec postgres psql -U developer -d articles_db
 
-## Add 2000 more articles, to see how things behave with realistic volume
-seed-large:
-	@docker compose exec -T postgres psql -U developer -d articles_db -v ON_ERROR_STOP=1 < database/seed-large.sql
-
-## Remove the bulk articles added by seed-large
-seed-reset:
-	@docker compose exec -T postgres psql -U developer -d articles_db -c "DELETE FROM articles WHERE title ~ ' \\([0-9]+\\)$$';"
-
 ## Destroy the database and rebuild it from the migrations
 reset-db:
 	@docker compose down -v
@@ -155,4 +146,4 @@ queue-purge:
 	@curl -s -X POST "$(QUEUE_ENDPOINT_LOCAL)" -d "Action=PurgeQueue" -d "Version=$(SQS_VERSION)"
 	@echo ""
 
-.PHONY: help install queue-delay up down logs-frontend reinstall-frontend api-call generate lint-proto logs logs-api logs-consumer ps restart-api psql reset-db seed-large seed-reset queue-attrs queue-send queue-purge
+.PHONY: help install queue-delay up down logs-frontend reinstall-frontend api-call generate lint-proto logs logs-api logs-consumer ps restart-api psql reset-db queue-attrs queue-send queue-purge

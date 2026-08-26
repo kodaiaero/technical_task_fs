@@ -201,8 +201,6 @@ make queue-delay DELAY=30 # hold messages for longer, to watch the async gap
 make queue-purge         # empty the queue
 
 make reset-db            # rebuild the database from the migrations
-make seed-large          # add 2000 more articles
-make seed-reset          # remove them again
 ```
 
 `make generate` and `make lint-proto` run inside Docker, so you do not need
