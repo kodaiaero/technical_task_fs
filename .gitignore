@@ -32,6 +32,3 @@ pnpm-debug.log*
 .env
 .env.local
 .env.*.local
-
-# Internal only - never ship to candidates.
-CLAUDE.md

@@ -2,8 +2,8 @@
 // @generated from file article_service.proto (package sliide.services.articles.api, edition 2023)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Article, ArticleDetails } from "./article_pb";
 import { file_article } from "./article_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file article_service.proto.
  */
 export const file_article_service: GenFile = /*@__PURE__*/
-  fileDesc("ChVhcnRpY2xlX3NlcnZpY2UucHJvdG8SHHNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkiFAoSR2V0QXJ0aWNsZXNSZXF1ZXN0Ik4KE0dldEFydGljbGVzUmVzcG9uc2USNwoIYXJ0aWNsZXMYASADKAsyJS5zbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpLkFydGljbGUiJgoYR2V0QXJ0aWNsZURldGFpbHNSZXF1ZXN0EgoKAmlkGAEgASgJIloKGUdldEFydGljbGVEZXRhaWxzUmVzcG9uc2USPQoHYXJ0aWNsZRgBIAEoCzIsLnNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkuQXJ0aWNsZURldGFpbHMyhwIKCkFydGljbGVBUEkScgoLR2V0QXJ0aWNsZXMSMC5zbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpLkdldEFydGljbGVzUmVxdWVzdBoxLnNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkuR2V0QXJ0aWNsZXNSZXNwb25zZRKEAQoRR2V0QXJ0aWNsZURldGFpbHMSNi5zbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpLkdldEFydGljbGVEZXRhaWxzUmVxdWVzdBo3LnNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkuR2V0QXJ0aWNsZURldGFpbHNSZXNwb25zZUJBWj9naXRodWIuY29tL3NsaWlkZS9hcnRpY2xlcy1iYWNrZW5kL3BrZy9hcnRpY2xlcy9hcGk7YXJ0aWNsZXNhcGliCGVkaXRpb25zcOgH", [file_article]);
+  fileDesc("ChVhcnRpY2xlX3NlcnZpY2UucHJvdG8SHHNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkiFAoSR2V0QXJ0aWNsZXNSZXF1ZXN0Ik4KE0dldEFydGljbGVzUmVzcG9uc2USNwoIYXJ0aWNsZXMYASADKAsyJS5zbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpLkFydGljbGUiJgoYR2V0QXJ0aWNsZURldGFpbHNSZXF1ZXN0EgoKAmlkGAEgASgJIloKGUdldEFydGljbGVEZXRhaWxzUmVzcG9uc2USPQoHYXJ0aWNsZRgBIAEoCzIsLnNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkuQXJ0aWNsZURldGFpbHMicgohUmVxdWVzdEFydGljbGVTdGF0dXNDaGFuZ2VSZXF1ZXN0EgoKAmlkGAEgASgJEkEKBmFjdGlvbhgCIAEoDjIxLnNsaWlkZS5zZXJ2aWNlcy5hcnRpY2xlcy5hcGkuQXJ0aWNsZVN0YXR1c0FjdGlvbiIkCiJSZXF1ZXN0QXJ0aWNsZVN0YXR1c0NoYW5nZVJlc3BvbnNlKoEBChNBcnRpY2xlU3RhdHVzQWN0aW9uEiUKIUFSVElDTEVfU1RBVFVTX0FDVElPTl9VTlNQRUNJRklFRBAAEiEKHUFSVElDTEVfU1RBVFVTX0FDVElPTl9ESVNBQkxFEAESIAocQVJUSUNMRV9TVEFUVVNfQUNUSU9OX0VOQUJMRRACMqkDCgpBcnRpY2xlQVBJEnIKC0dldEFydGljbGVzEjAuc2xpaWRlLnNlcnZpY2VzLmFydGljbGVzLmFwaS5HZXRBcnRpY2xlc1JlcXVlc3QaMS5zbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpLkdldEFydGljbGVzUmVzcG9uc2UShAEKEUdldEFydGljbGVEZXRhaWxzEjYuc2xpaWRlLnNlcnZpY2VzLmFydGljbGVzLmFwaS5HZXRBcnRpY2xlRGV0YWlsc1JlcXVlc3QaNy5zbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpLkdldEFydGljbGVEZXRhaWxzUmVzcG9uc2USnwEKGlJlcXVlc3RBcnRpY2xlU3RhdHVzQ2hhbmdlEj8uc2xpaWRlLnNlcnZpY2VzLmFydGljbGVzLmFwaS5SZXF1ZXN0QXJ0aWNsZVN0YXR1c0NoYW5nZVJlcXVlc3QaQC5zbGlpZGUuc2VydmljZXMuYXJ0aWNsZXMuYXBpLlJlcXVlc3RBcnRpY2xlU3RhdHVzQ2hhbmdlUmVzcG9uc2VCQVo/Z2l0aHViLmNvbS9zbGlpZGUvYXJ0aWNsZXMtYmFja2VuZC9wa2cvYXJ0aWNsZXMvYXBpO2FydGljbGVzYXBpYghlZGl0aW9uc3DoBw", [file_article]);
 
 /**
  * Empty for now, rather than google.protobuf.Empty, so fields can be added
@@ -82,6 +82,69 @@ export const GetArticleDetailsResponseSchema: GenMessage<GetArticleDetailsRespon
   messageDesc(file_article_service, 3);
 
 /**
+ * @generated from message sliide.services.articles.api.RequestArticleStatusChangeRequest
+ */
+export type RequestArticleStatusChangeRequest = Message<"sliide.services.articles.api.RequestArticleStatusChangeRequest"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: sliide.services.articles.api.ArticleStatusAction action = 2;
+   */
+  action: ArticleStatusAction;
+};
+
+/**
+ * Describes the message sliide.services.articles.api.RequestArticleStatusChangeRequest.
+ * Use `create(RequestArticleStatusChangeRequestSchema)` to create a new message.
+ */
+export const RequestArticleStatusChangeRequestSchema: GenMessage<RequestArticleStatusChangeRequest> = /*@__PURE__*/
+  messageDesc(file_article_service, 4);
+
+/**
+ * The queue accepted the request. Read the article to observe its current state.
+ *
+ * @generated from message sliide.services.articles.api.RequestArticleStatusChangeResponse
+ */
+export type RequestArticleStatusChangeResponse = Message<"sliide.services.articles.api.RequestArticleStatusChangeResponse"> & {
+};
+
+/**
+ * Describes the message sliide.services.articles.api.RequestArticleStatusChangeResponse.
+ * Use `create(RequestArticleStatusChangeResponseSchema)` to create a new message.
+ */
+export const RequestArticleStatusChangeResponseSchema: GenMessage<RequestArticleStatusChangeResponse> = /*@__PURE__*/
+  messageDesc(file_article_service, 5);
+
+/**
+ * @generated from enum sliide.services.articles.api.ArticleStatusAction
+ */
+export enum ArticleStatusAction {
+  /**
+   * @generated from enum value: ARTICLE_STATUS_ACTION_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: ARTICLE_STATUS_ACTION_DISABLE = 1;
+   */
+  DISABLE = 1,
+
+  /**
+   * @generated from enum value: ARTICLE_STATUS_ACTION_ENABLE = 2;
+   */
+  ENABLE = 2,
+}
+
+/**
+ * Describes the enum sliide.services.articles.api.ArticleStatusAction.
+ */
+export const ArticleStatusActionSchema: GenEnum<ArticleStatusAction> = /*@__PURE__*/
+  enumDesc(file_article_service, 0);
+
+/**
  * @generated from service sliide.services.articles.api.ArticleAPI
  */
 export const ArticleAPI: GenService<{
@@ -100,6 +163,16 @@ export const ArticleAPI: GenService<{
     methodKind: "unary";
     input: typeof GetArticleDetailsRequestSchema;
     output: typeof GetArticleDetailsResponseSchema;
+  },
+  /**
+   * Success confirms queue acceptance, not an applied article status change.
+   *
+   * @generated from rpc sliide.services.articles.api.ArticleAPI.RequestArticleStatusChange
+   */
+  requestArticleStatusChange: {
+    methodKind: "unary";
+    input: typeof RequestArticleStatusChangeRequestSchema;
+    output: typeof RequestArticleStatusChangeResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_article_service, 0);

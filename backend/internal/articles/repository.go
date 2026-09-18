@@ -1,6 +1,7 @@
 package articles
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -14,6 +15,15 @@ type Repository struct {
 
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
+}
+
+func (r *Repository) Exists(ctx context.Context, id string) (bool, error) {
+	var exists bool
+	err := r.db.QueryRowContext(ctx, "SELECT EXISTS (SELECT 1 FROM articles WHERE id = $1)", id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("check article existence: %w", err)
+	}
+	return exists, nil
 }
 
 const listQuery = `
