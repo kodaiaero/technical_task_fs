@@ -21,7 +21,7 @@ Run in `frontend/`:
 pnpm typecheck
 ```
 
-The backend currently has no test files. A successful `go test ./...` therefore confirms that the packages compile, but provides no behavioral test coverage. `go vet` and TypeScript checking also do not establish runtime behavior.
+The article service tests cover both status-change message actions, invalid input, missing articles, database and publish failures, and request deadline propagation using fake dependencies. They do not establish real SQS delivery or consumer behavior. `go vet` and TypeScript checking also do not establish runtime behavior.
 
 For protobuf changes, run from the repository root:
 

@@ -21,6 +21,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ArticleStatusAction int32
+
+const (
+	ArticleStatusAction_ARTICLE_STATUS_ACTION_UNSPECIFIED ArticleStatusAction = 0
+	ArticleStatusAction_ARTICLE_STATUS_ACTION_DISABLE     ArticleStatusAction = 1
+	ArticleStatusAction_ARTICLE_STATUS_ACTION_ENABLE      ArticleStatusAction = 2
+)
+
+// Enum value maps for ArticleStatusAction.
+var (
+	ArticleStatusAction_name = map[int32]string{
+		0: "ARTICLE_STATUS_ACTION_UNSPECIFIED",
+		1: "ARTICLE_STATUS_ACTION_DISABLE",
+		2: "ARTICLE_STATUS_ACTION_ENABLE",
+	}
+	ArticleStatusAction_value = map[string]int32{
+		"ARTICLE_STATUS_ACTION_UNSPECIFIED": 0,
+		"ARTICLE_STATUS_ACTION_DISABLE":     1,
+		"ARTICLE_STATUS_ACTION_ENABLE":      2,
+	}
+)
+
+func (x ArticleStatusAction) Enum() *ArticleStatusAction {
+	p := new(ArticleStatusAction)
+	*p = x
+	return p
+}
+
+func (x ArticleStatusAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ArticleStatusAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_article_service_proto_enumTypes[0].Descriptor()
+}
+
+func (ArticleStatusAction) Type() protoreflect.EnumType {
+	return &file_article_service_proto_enumTypes[0]
+}
+
+func (x ArticleStatusAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ArticleStatusAction.Descriptor instead.
+func (ArticleStatusAction) EnumDescriptor() ([]byte, []int) {
+	return file_article_service_proto_rawDescGZIP(), []int{0}
+}
+
 // Empty for now, rather than google.protobuf.Empty, so fields can be added
 // without changing the method signature.
 type GetArticlesRequest struct {
@@ -191,6 +240,95 @@ func (x *GetArticleDetailsResponse) GetArticle() *ArticleDetails {
 	return nil
 }
 
+type RequestArticleStatusChangeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            *string                `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	Action        *ArticleStatusAction   `protobuf:"varint,2,opt,name=action,enum=sliide.services.articles.api.ArticleStatusAction" json:"action,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestArticleStatusChangeRequest) Reset() {
+	*x = RequestArticleStatusChangeRequest{}
+	mi := &file_article_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestArticleStatusChangeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestArticleStatusChangeRequest) ProtoMessage() {}
+
+func (x *RequestArticleStatusChangeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_article_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestArticleStatusChangeRequest.ProtoReflect.Descriptor instead.
+func (*RequestArticleStatusChangeRequest) Descriptor() ([]byte, []int) {
+	return file_article_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RequestArticleStatusChangeRequest) GetId() string {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return ""
+}
+
+func (x *RequestArticleStatusChangeRequest) GetAction() ArticleStatusAction {
+	if x != nil && x.Action != nil {
+		return *x.Action
+	}
+	return ArticleStatusAction_ARTICLE_STATUS_ACTION_UNSPECIFIED
+}
+
+// The queue accepted the request. Read the article to observe its current state.
+type RequestArticleStatusChangeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestArticleStatusChangeResponse) Reset() {
+	*x = RequestArticleStatusChangeResponse{}
+	mi := &file_article_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestArticleStatusChangeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestArticleStatusChangeResponse) ProtoMessage() {}
+
+func (x *RequestArticleStatusChangeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_article_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestArticleStatusChangeResponse.ProtoReflect.Descriptor instead.
+func (*RequestArticleStatusChangeResponse) Descriptor() ([]byte, []int) {
+	return file_article_service_proto_rawDescGZIP(), []int{5}
+}
+
 var File_article_service_proto protoreflect.FileDescriptor
 
 const file_article_service_proto_rawDesc = "" +
@@ -202,11 +340,20 @@ const file_article_service_proto_rawDesc = "" +
 	"\x18GetArticleDetailsRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"c\n" +
 	"\x19GetArticleDetailsResponse\x12F\n" +
-	"\aarticle\x18\x01 \x01(\v2,.sliide.services.articles.api.ArticleDetailsR\aarticle2\x87\x02\n" +
+	"\aarticle\x18\x01 \x01(\v2,.sliide.services.articles.api.ArticleDetailsR\aarticle\"~\n" +
+	"!RequestArticleStatusChangeRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12I\n" +
+	"\x06action\x18\x02 \x01(\x0e21.sliide.services.articles.api.ArticleStatusActionR\x06action\"$\n" +
+	"\"RequestArticleStatusChangeResponse*\x81\x01\n" +
+	"\x13ArticleStatusAction\x12%\n" +
+	"!ARTICLE_STATUS_ACTION_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dARTICLE_STATUS_ACTION_DISABLE\x10\x01\x12 \n" +
+	"\x1cARTICLE_STATUS_ACTION_ENABLE\x10\x022\xa9\x03\n" +
 	"\n" +
 	"ArticleAPI\x12r\n" +
 	"\vGetArticles\x120.sliide.services.articles.api.GetArticlesRequest\x1a1.sliide.services.articles.api.GetArticlesResponse\x12\x84\x01\n" +
-	"\x11GetArticleDetails\x126.sliide.services.articles.api.GetArticleDetailsRequest\x1a7.sliide.services.articles.api.GetArticleDetailsResponseBAZ?github.com/sliide/articles-backend/pkg/articles/api;articlesapib\beditionsp\xe8\a"
+	"\x11GetArticleDetails\x126.sliide.services.articles.api.GetArticleDetailsRequest\x1a7.sliide.services.articles.api.GetArticleDetailsResponse\x12\x9f\x01\n" +
+	"\x1aRequestArticleStatusChange\x12?.sliide.services.articles.api.RequestArticleStatusChangeRequest\x1a@.sliide.services.articles.api.RequestArticleStatusChangeResponseBAZ?github.com/sliide/articles-backend/pkg/articles/api;articlesapib\beditionsp\xe8\a"
 
 var (
 	file_article_service_proto_rawDescOnce sync.Once
@@ -220,27 +367,34 @@ func file_article_service_proto_rawDescGZIP() []byte {
 	return file_article_service_proto_rawDescData
 }
 
-var file_article_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_article_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_article_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_article_service_proto_goTypes = []any{
-	(*GetArticlesRequest)(nil),        // 0: sliide.services.articles.api.GetArticlesRequest
-	(*GetArticlesResponse)(nil),       // 1: sliide.services.articles.api.GetArticlesResponse
-	(*GetArticleDetailsRequest)(nil),  // 2: sliide.services.articles.api.GetArticleDetailsRequest
-	(*GetArticleDetailsResponse)(nil), // 3: sliide.services.articles.api.GetArticleDetailsResponse
-	(*Article)(nil),                   // 4: sliide.services.articles.api.Article
-	(*ArticleDetails)(nil),            // 5: sliide.services.articles.api.ArticleDetails
+	(ArticleStatusAction)(0),                   // 0: sliide.services.articles.api.ArticleStatusAction
+	(*GetArticlesRequest)(nil),                 // 1: sliide.services.articles.api.GetArticlesRequest
+	(*GetArticlesResponse)(nil),                // 2: sliide.services.articles.api.GetArticlesResponse
+	(*GetArticleDetailsRequest)(nil),           // 3: sliide.services.articles.api.GetArticleDetailsRequest
+	(*GetArticleDetailsResponse)(nil),          // 4: sliide.services.articles.api.GetArticleDetailsResponse
+	(*RequestArticleStatusChangeRequest)(nil),  // 5: sliide.services.articles.api.RequestArticleStatusChangeRequest
+	(*RequestArticleStatusChangeResponse)(nil), // 6: sliide.services.articles.api.RequestArticleStatusChangeResponse
+	(*Article)(nil),                            // 7: sliide.services.articles.api.Article
+	(*ArticleDetails)(nil),                     // 8: sliide.services.articles.api.ArticleDetails
 }
 var file_article_service_proto_depIdxs = []int32{
-	4, // 0: sliide.services.articles.api.GetArticlesResponse.articles:type_name -> sliide.services.articles.api.Article
-	5, // 1: sliide.services.articles.api.GetArticleDetailsResponse.article:type_name -> sliide.services.articles.api.ArticleDetails
-	0, // 2: sliide.services.articles.api.ArticleAPI.GetArticles:input_type -> sliide.services.articles.api.GetArticlesRequest
-	2, // 3: sliide.services.articles.api.ArticleAPI.GetArticleDetails:input_type -> sliide.services.articles.api.GetArticleDetailsRequest
-	1, // 4: sliide.services.articles.api.ArticleAPI.GetArticles:output_type -> sliide.services.articles.api.GetArticlesResponse
-	3, // 5: sliide.services.articles.api.ArticleAPI.GetArticleDetails:output_type -> sliide.services.articles.api.GetArticleDetailsResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	7, // 0: sliide.services.articles.api.GetArticlesResponse.articles:type_name -> sliide.services.articles.api.Article
+	8, // 1: sliide.services.articles.api.GetArticleDetailsResponse.article:type_name -> sliide.services.articles.api.ArticleDetails
+	0, // 2: sliide.services.articles.api.RequestArticleStatusChangeRequest.action:type_name -> sliide.services.articles.api.ArticleStatusAction
+	1, // 3: sliide.services.articles.api.ArticleAPI.GetArticles:input_type -> sliide.services.articles.api.GetArticlesRequest
+	3, // 4: sliide.services.articles.api.ArticleAPI.GetArticleDetails:input_type -> sliide.services.articles.api.GetArticleDetailsRequest
+	5, // 5: sliide.services.articles.api.ArticleAPI.RequestArticleStatusChange:input_type -> sliide.services.articles.api.RequestArticleStatusChangeRequest
+	2, // 6: sliide.services.articles.api.ArticleAPI.GetArticles:output_type -> sliide.services.articles.api.GetArticlesResponse
+	4, // 7: sliide.services.articles.api.ArticleAPI.GetArticleDetails:output_type -> sliide.services.articles.api.GetArticleDetailsResponse
+	6, // 8: sliide.services.articles.api.ArticleAPI.RequestArticleStatusChange:output_type -> sliide.services.articles.api.RequestArticleStatusChangeResponse
+	6, // [6:9] is the sub-list for method output_type
+	3, // [3:6] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_article_service_proto_init() }
@@ -254,13 +408,14 @@ func file_article_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_article_service_proto_rawDesc), len(file_article_service_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_article_service_proto_goTypes,
 		DependencyIndexes: file_article_service_proto_depIdxs,
+		EnumInfos:         file_article_service_proto_enumTypes,
 		MessageInfos:      file_article_service_proto_msgTypes,
 	}.Build()
 	File_article_service_proto = out.File

@@ -8,9 +8,9 @@ This document describes the current implementation. See [README.md](README.md) f
 | --- | --- | --- |
 | React client | Article list and detail pages, loading states, and status badges | `frontend/src/client/` |
 | Node BFF | tRPC procedures, input validation, gRPC calls, response and error mapping | `frontend/src/server/` |
-| Go API | gRPC handlers and article reads through a SQL repository | `backend/internal/articles/` |
+| Go API | gRPC handlers, article reads, and asynchronous status-change requests | `backend/internal/articles/` |
 | Postgres | Article data, including the `disabled` flag | `backend/internal/database/migrations/` |
-| Queue publisher | SQS message publishing helper; not connected to an article RPC | `backend/internal/queue/` |
+| Queue publisher | Publishes status-change requests to SQS | `backend/internal/queue/` |
 | External services | Queue, status consumer, and image CDN | `external/` |
 
 The Compose `frontend` service runs Vite and the Node BFF. React runs in the browser. Vite serves the client and proxies `/_trpc` to the BFF. The BFF calls `api:8081` inside the Compose network; `localhost:8091` is the host-facing mapping for the same Go API.
@@ -42,12 +42,12 @@ The article list follows the same layers through `GetArticles`. Images are loade
 
 - React and the BFF share the TypeScript `AppRouter` type. tRPC does not require client code generation; input validation still happens at runtime.
 - The BFF and Go API share [protobuf definitions](backend/api/proto/article_service.proto). `make generate` produces Go code under `backend/pkg/articles/api/` and TypeScript code under `frontend/src/server/generated/grpc/`.
-- The Go API currently exposes only `GetArticles` and `GetArticleDetails`.
+- The Go API exposes `GetArticles`, `GetArticleDetails`, and `RequestArticleStatusChange`. The status-change RPC accepts an article ID and an explicit disable/enable action; success means queue acceptance only.
 
 ## Status processing
 
 The existing external path is `queue → consumer → Postgres`. The consumer accepts `disable` and `enable` messages and sets the article's `disabled` flag. Repeated application of the same action is idempotent; opposite actions can have different results depending on their order.
 
-The Go entrypoint currently creates a publisher and logs its queue URL, but does not inject it into the article service or expose a status-change RPC. There is no status-change control in the client yet.
+The Go entrypoint injects the publisher into the article service. `RequestArticleStatusChange` validates the UUID shape and action, checks article existence, and publishes the external JSON contract without updating the database. Database checking and publishing share a request context bounded to five seconds (or a shorter caller deadline). Invalid input and missing articles are rejected before publishing. A publish error returns an unconfirmed acceptance outcome; cancellation cannot undo a message already accepted by the queue. The BFF and client do not expose this mutation yet.
 
 Queue acceptance and database application are separate events. Delivery is delayed, at least once, and unordered. A successful publish cannot prove that the requested state has been applied. The exact message shape, failure handling, and queue inspection commands belong to the [external contract](external/README.md).

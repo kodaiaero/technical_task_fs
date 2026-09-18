@@ -9,6 +9,8 @@ option go_package = "github.com/sliide/articles-backend/pkg/articles/api;article
 service ArticleAPI {
   rpc GetArticles(GetArticlesRequest) returns (GetArticlesResponse);
   rpc GetArticleDetails(GetArticleDetailsRequest) returns (GetArticleDetailsResponse);
+  // Success confirms queue acceptance, not an applied article status change.
+  rpc RequestArticleStatusChange(RequestArticleStatusChangeRequest) returns (RequestArticleStatusChangeResponse);
 }
 
 // Empty for now, rather than google.protobuf.Empty, so fields can be added
@@ -26,3 +28,17 @@ message GetArticleDetailsRequest {
 message GetArticleDetailsResponse {
   ArticleDetails article = 1;
 }
+
+enum ArticleStatusAction {
+  ARTICLE_STATUS_ACTION_UNSPECIFIED = 0;
+  ARTICLE_STATUS_ACTION_DISABLE = 1;
+  ARTICLE_STATUS_ACTION_ENABLE = 2;
+}
+
+message RequestArticleStatusChangeRequest {
+  string id = 1;
+  ArticleStatusAction action = 2;
+}
+
+// The queue accepted the request. Read the article to observe its current state.
+message RequestArticleStatusChangeResponse {}
