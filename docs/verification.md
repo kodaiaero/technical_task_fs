@@ -1,0 +1,55 @@
+# Verification
+
+Use the smallest set of checks that establishes the behavior being changed. Report commands run, observed results, and any unverified behavior.
+
+## Prerequisites
+
+Follow [README.md](../README.md) for Docker and local development setup. `make up` starts the complete stack. `make install` provides host-side dependencies for editor support and local checks; use the Node and Go versions specified by `frontend/package.json` and `backend/go.mod`.
+
+## Local checks
+
+Run in `backend/`:
+
+```sh
+go test ./...
+go vet ./...
+```
+
+Run in `frontend/`:
+
+```sh
+pnpm typecheck
+```
+
+The backend currently has no test files. A successful `go test ./...` therefore confirms that the packages compile, but provides no behavioral test coverage. `go vet` and TypeScript checking also do not establish runtime behavior.
+
+For protobuf changes, run from the repository root:
+
+```sh
+make lint-proto
+make generate
+```
+
+Review regenerated files and rerun the relevant Go and TypeScript checks. Generation uses Docker and can take longer on its first run.
+
+## Article read smoke check
+
+With the stack running:
+
+1. Open `http://localhost:5183`. With the initial seed data, the list contains 40 articles with images and status badges.
+2. Open an article. Check that its title, metadata, and body appear, then return to the list.
+3. Open a detail URL containing a well-formed article UUID that is absent from the database. Check that the UI reports the failure rather than displaying an unrelated article.
+4. When investigating a failure, use `make logs-frontend` and `make logs-api` to inspect the BFF and Go API respectively.
+
+To inspect the Go API independently of the UI and BFF, run from the repository root:
+
+```sh
+make api-call RPC=GetArticles
+make api-call RPC=GetArticleDetails DATA='{"id":"<article-id>"}'
+```
+
+Replace `<article-id>` with an ID from the list response. These checks exercise the read path only. See [external/README.md](../external/README.md) for queue inspection and manual message publishing; a successful queue send is not evidence that a database update completed.
+
+## Automation
+
+No CI workflow is configured yet. The commands above are the current local verification entrypoints. When CI is added, keep its checks aligned with these commands and document any additional requirements here.
