@@ -8,7 +8,8 @@
     "dev:client": "vite --config src/client/vite.config.ts",
     "dev:server": "tsx watch src/server/main.ts",
     "generate": "buf generate",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test": "node --import tsx --test src/client/lib/status-confirmation.test.ts src/server/trpc/routers/articles/articles-router.test.ts"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.11.0",

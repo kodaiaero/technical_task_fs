@@ -48,6 +48,12 @@ The article list follows the same layers through `GetArticles`. Images are loade
 
 The existing external path is `queue → consumer → Postgres`. The consumer accepts `disable` and `enable` messages and sets the article's `disabled` flag. Repeated application of the same action is idempotent; opposite actions can have different results depending on their order.
 
-The Go entrypoint injects the publisher into the article service. `RequestArticleStatusChange` validates the UUID shape and action, checks article existence, and publishes the external JSON contract without updating the database. Database checking and publishing share a request context bounded to five seconds (or a shorter caller deadline). Invalid input and missing articles are rejected before publishing. A publish error returns an unconfirmed acceptance outcome; cancellation cannot undo a message already accepted by the queue. The BFF and client do not expose this mutation yet.
+The Go entrypoint injects the publisher into the article service. `RequestArticleStatusChange` validates the UUID shape and action, checks article existence, and publishes the external JSON contract without updating the database. Database checking and publishing share a request context bounded to five seconds (or a shorter caller deadline). Invalid input and missing articles are rejected before publishing. A publish error returns an unconfirmed acceptance outcome; cancellation cannot undo a message already accepted by the queue. The BFF validates and maps the action, and the React detail page exposes the controls.
 
 Queue acceptance and database application are separate events. Delivery is delayed, at least once, and unordered. A successful publish cannot prove that the requested state has been applied. The exact message shape, failure handling, and queue inspection commands belong to the [external contract](external/README.md).
+
+### Client confirmation
+
+The detail control keeps the requested action separately from the observed article. After acceptance it reads immediately, then approximately every two seconds, stopping after 30 seconds or on page exit. Confirmation reads bypass cached values and update the TanStack cache; the list is invalidated after confirmation. Requests do not overlap within the polling loop.
+
+An unconfirmed outcome offers `Check status`, which only reads. A successful fresh read that still differs permits `Retry request` for the same action. Read failures do not prove mutation failure. There is no automatic mutation retry, optimistic status change, or operation persistence across reloads. These controls do not guarantee ordering across delayed messages or other clients.

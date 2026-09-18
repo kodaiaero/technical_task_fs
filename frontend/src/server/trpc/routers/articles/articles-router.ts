@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
-import { ArticleAPI } from '@server/generated/grpc/article_service_pb';
+import { ArticleAPI, ArticleStatusAction } from '@server/generated/grpc/article_service_pb';
 import { articlesApiClientMiddleware } from '@server/trpc/context/context';
 import { publicProcedure, router } from '@server/trpc/trpc';
 import { toArticlesTRPCError } from './articles-errors';
@@ -12,6 +12,22 @@ const articlesProcedure = publicProcedure.use(
 );
 
 export const articlesRouter = router({
+  requestArticleStatusChange: articlesProcedure
+    .input(z.object({ id: z.guid(), action: z.enum(['disable', 'enable']) }))
+    .mutation(async ({ ctx, input, signal }) => {
+      try {
+        await ctx.articlesClient.requestArticleStatusChange({
+          id: input.id,
+          action: input.action === 'disable'
+            ? ArticleStatusAction.DISABLE
+            : ArticleStatusAction.ENABLE,
+        }, { signal, timeoutMs: 6_000 });
+        return { accepted: true };
+      } catch (error) {
+        throw toArticlesTRPCError(error);
+      }
+    }),
+
   getArticles: articlesProcedure.query(async ({ ctx }) => {
     try {
       const response = await ctx.articlesClient.getArticles({});
@@ -27,9 +43,11 @@ export const articlesRouter = router({
     // enforcing RFC 9562's version and variant bits here would reject ids the
     // database is perfectly happy with.
     .input(z.object({ id: z.guid() }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input, signal }) => {
       try {
-        const response = await ctx.articlesClient.getArticleDetails({ id: input.id });
+        const response = await ctx.articlesClient.getArticleDetails(
+          { id: input.id }, { signal, timeoutMs: 5_000 },
+        );
 
         if (!response.article) {
           throw new TRPCError({

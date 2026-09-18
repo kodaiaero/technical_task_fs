@@ -21,6 +21,7 @@ Run in `frontend/`:
 
 ```sh
 pnpm typecheck
+pnpm test
 ```
 
 The article service tests cover both status-change message actions, invalid input, missing articles, database and publish failures, and request deadline propagation using fake dependencies. They do not establish real SQS delivery or consumer behavior. `go vet` and TypeScript checking also do not establish runtime behavior.
@@ -59,3 +60,18 @@ Replace `<article-id>` with an ID from the list response. These checks exercise 
 Go and Node versions come from `backend/go.mod` and `frontend/package.json`; pnpm uses the latter's `packageManager` field. Frontend dependencies are installed with `--frozen-lockfile`.
 
 CI does not currently run browser tests, the external consumer, protobuf generation checks, or dependency-direction rules. It checks the behavior covered by the Go unit tests and static correctness; passing it does not establish end-to-end behavior. Making these checks mandatory before merging requires repository branch protection configuration.
+
+## Focused behavior coverage
+
+- Go service tests use stub dependencies to check the mutation contract and failure boundaries.
+- Node tests check BFF action mapping/rejection and sequential confirmation reads, transient errors, deadline cancellation, and page-exit cancellation. They do not mount React components.
+- No coverage quota or browser automation suite is included.
+
+## Status-change manual checks
+
+1. Disable an enabled article. The badge should remain Live while the request is accepted and pending, then change only after a fresh read observes Disabled. Verify the list too.
+2. Enable the article and confirm the reverse path.
+3. Temporarily set `make queue-delay DELAY=45`. At the 30-second UI deadline, verify an unconfirmed message and `Check status`. A fresh mismatch permits `Retry request`; the original queued request may still apply. Restore the previous queue delay afterward.
+4. Leave or reload the page while pending. The old request is not cancelled; the new view reads current article state and does not restore the old operation.
+
+The default local delay is five seconds. Runtime delay changes are local test configuration, not changes to `external/`.

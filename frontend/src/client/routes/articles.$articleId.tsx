@@ -4,12 +4,13 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { formatPublished } from '@client/lib/format';
 import { imageUrl } from '@client/lib/image';
 import { useTRPC } from '@client/trpc';
+import { ArticleStatusControl } from './-components/article-status-control';
 import { StatusBadge } from './-components/status-badge';
 
 export const Route = createFileRoute('/articles/$articleId')({
   loader: async ({ context, params }) => {
     await context.queryClient.query(
-      context.trpc.articles.getArticleDetails.queryOptions({ id: params.articleId }),
+      { ...context.trpc.articles.getArticleDetails.queryOptions({ id: params.articleId }), staleTime: 0 },
     );
   },
   component: ArticleDetailsPage,
@@ -20,7 +21,13 @@ function ArticleDetailsPage() {
   const { articleId } = Route.useParams();
   const trpc = useTRPC();
   const { data: article } = useSuspenseQuery(
-    trpc.articles.getArticleDetails.queryOptions({ id: articleId }),
+    {
+      ...trpc.articles.getArticleDetails.queryOptions({ id: articleId }),
+      staleTime: 0,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   );
 
   return (
@@ -33,6 +40,8 @@ function ArticleDetailsPage() {
         <h1 className="flex-1 text-3xl font-semibold">{article.title}</h1>
         <StatusBadge disabled={article.disabled} />
       </div>
+
+      <ArticleStatusControl key={articleId} id={articleId} disabled={article.disabled} />
 
       <p className="mt-2 text-sm text-slate-500">
         {article.author} · {article.source} · <span className="capitalize">{article.category}</span>{' '}
