@@ -9,4 +9,4 @@ tmp_dir = "tmp"
   delay = 500
   stop_on_error = true
   send_interrupt = true
-  kill_delay = "3s"
+  kill_delay = "9s"

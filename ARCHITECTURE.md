@@ -57,3 +57,7 @@ Queue acceptance and database application are separate events. Delivery is delay
 The detail control keeps the requested action separately from the observed article. After acceptance it reads immediately, then approximately every two seconds, stopping after 30 seconds or on page exit. Confirmation reads bypass cached values and update the TanStack cache; the list is invalidated after confirmation. Requests do not overlap within the polling loop.
 
 An unconfirmed outcome offers `Check status`, which only reads. A successful fresh read that still differs permits `Retry request` for the same action. Read failures do not prove mutation failure. There is no automatic mutation retry, optimistic status change, or operation persistence across reloads. These controls do not guarantee ordering across delayed messages or other clients.
+
+### API shutdown
+
+SIGINT/SIGTERM starts gRPC graceful shutdown, allowing in-flight RPCs up to seven seconds before forcing a stop. Database connections are closed afterward. The development Air kill delay is nine seconds to allow this drain period. Shutdown does not wait for the external consumer or undo accepted messages. The seven-second bound applies to RPC draining; existing read repository methods and database cleanup do not yet have comprehensive deadline coverage.

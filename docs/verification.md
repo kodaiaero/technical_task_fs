@@ -64,6 +64,7 @@ CI does not currently run browser tests, the external consumer, protobuf generat
 ## Focused behavior coverage
 
 - Go service tests use stub dependencies to check the mutation contract and failure boundaries.
+- Shutdown tests use an in-memory gRPC server with a blocked real RPC to check draining and forced termination.
 - Node tests check BFF action mapping/rejection and sequential confirmation reads, transient errors, deadline cancellation, and page-exit cancellation. They do not mount React components.
 - No coverage quota or browser automation suite is included.
 
