@@ -26,6 +26,7 @@ Read the document relevant to the change rather than loading every document up f
 
 ## Quick checks
 
+- From the repository root: `make check` runs the same Go and TypeScript checks as CI. Use `make check-go` or `make check-web` for a single stack.
 - In `backend/`: `go test ./...` and `go vet ./...`.
 - In `frontend/`: `pnpm typecheck`.
 - After protobuf edits: `make lint-proto` and `make generate` from the repository root.

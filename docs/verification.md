@@ -8,6 +8,8 @@ Follow [README.md](../README.md) for Docker and local development setup. `make u
 
 ## Local checks
 
+From the repository root, run `make check` with local Go and pnpm installed. CI uses `make check-go` and `make check-web` separately. These targets run the commands below.
+
 Run in `backend/`:
 
 ```sh
@@ -52,4 +54,8 @@ Replace `<article-id>` with an ID from the list response. These checks exercise 
 
 ## Automation
 
-No CI workflow is configured yet. The commands above are the current local verification entrypoints. When CI is added, keep its checks aligned with these commands and document any additional requirements here.
+[CI](../.github/workflows/ci.yml) runs on pull requests targeting `master` or `main`, pushes to either branch (including merges), and manual dispatch. Independent jobs run Go tests/vet and TypeScript checking using the same Make targets as local development.
+
+Go and Node versions come from `backend/go.mod` and `frontend/package.json`; pnpm uses the latter's `packageManager` field. Frontend dependencies are installed with `--frozen-lockfile`.
+
+CI does not currently run browser tests, the external consumer, protobuf generation checks, or dependency-direction rules. It checks the behavior covered by the Go unit tests and static correctness; passing it does not establish end-to-end behavior. Making these checks mandatory before merging requires repository branch protection configuration.

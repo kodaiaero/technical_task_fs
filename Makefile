@@ -14,6 +14,20 @@ DELAY ?= 5
 
 .DEFAULT_GOAL := help
 
+## Run Go tests, Go vet, and TypeScript checking with local tools
+check: check-go check-web
+
+## Run Go tests and static analysis with local Go
+check-go:
+	cd backend && go test ./...
+	cd backend && go vet ./...
+
+## Check TypeScript with local pnpm (install dependencies first)
+check-web:
+	cd frontend && pnpm typecheck
+
+.PHONY: check check-go check-web
+
 ## Show this help
 help:
 	@echo ""
