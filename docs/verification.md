@@ -55,7 +55,7 @@ Replace `<article-id>` with an ID from the list response. These checks exercise 
 
 ## Automation
 
-[CI](../.github/workflows/ci.yml) runs on pull requests targeting `master` or `main`, pushes to either branch (including merges), and manual dispatch. Independent jobs run Go tests/vet and TypeScript checking using the same Make targets as local development.
+[CI](../.github/workflows/ci.yml) runs on pull requests targeting `master` or `main`, pushes to either branch (including merges), and manual dispatch. Independent jobs run Go tests/vet and frontend tests/typechecking using the same Make targets as local development.
 
 Go and Node versions come from `backend/go.mod` and `frontend/package.json`; pnpm uses the latter's `packageManager` field. Frontend dependencies are installed with `--frozen-lockfile`.
 
