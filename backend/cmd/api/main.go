@@ -60,8 +60,8 @@ func run() error {
 	serveErrors := make(chan error, 1)
 	go func() { serveErrors <- server.Serve(listener) }()
 
-	fmt.Println("api listening on", listenAddr)
-	fmt.Println("article status changes go to", publisher.QueueURL())
+	slog.Info("api listening", "addr", listenAddr)
+	slog.Info("status changes publish to queue", "queue_url", publisher.QueueURL())
 
 	select {
 	case err := <-serveErrors:
